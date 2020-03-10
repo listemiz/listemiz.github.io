@@ -20,7 +20,10 @@
   <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="../../">
-        <i class="fas fa-star-half-alt"></i>
+        <span class="fa-stack ">
+          <span class="icon"><i class="fas fa-tv fa-stack-2x"></i></span>
+          <span class="icon"><i class="fas fa-heart fa-xs fa-stack-1x"></i></span>
+        </span>
       </a>
     </div>
 
@@ -43,21 +46,23 @@
     </div>
   </nav>
 
-  <div class="tabs is-centered is-fullwidth">
-    <ul>
-      <li><a href='../'>
-        <span class="icon is-small"><i class="fas fa-search fa-sm" aria-hidden="true"></i></span>
-        <span>Find</span>
-      </a></li>
-      <li><a href='../rate'>
-        <span class="icon is-small"><i class="fas fa-star-half-alt fa-sm" aria-hidden="true"></i></span>
-        <span>Rate</span>
-      </a></li>
-      <li class="is-active"><a href='./'>
-        <span class="icon is-small"><i class="fas fa-list fa-sm" aria-hidden="true"></i></span>
-        <span>List</span>
-      </a></li>
-    </ul>
+  <div class="container">
+    <div class="tabs is-centered is-fullwidth">
+      <ul>
+        <li><a href='../'>
+            <span class="icon is-small"><i class="fas fa-search fa-sm" aria-hidden="true"></i></span>
+            <span>Find</span>
+          </a></li>
+        <li><a href='../rate'>
+            <span class="icon is-small"><i class="fas fa-star-half-alt fa-sm" aria-hidden="true"></i></span>
+            <span>Rate</span>
+          </a></li>
+        <li class="is-active"><a href='./'>
+            <span class="icon is-small"><i class="fas fa-list fa-sm" aria-hidden="true"></i></span>
+            <span>List</span>
+          </a></li>
+      </ul>
+    </div>
   </div>
 
   <script src="../../google.js"></script>

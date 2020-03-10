@@ -13,14 +13,54 @@
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-  <!-- <script src="script.js"></script> -->
+
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
+  <script>
+    // maximize-select2-height v1.0.4
+    // (c) Panorama Education 2020
+    // MIT License
+    ! function (t) {
+      "use strict"
+      var e = t(window),
+        n = t(document),
+        o = function (o, i) {
+          return t.extend({
+            cushion: i && n.width() > e.width() ? 30 : 10
+          }, o)
+        },
+        i = function (t, n, i, c, s) {
+          var r, u, h
+          return s ? r = window.document.documentElement.clientHeight + e.scrollTop() - n.offset().top : (h = t.offset()
+            .top, u = i.height() - n.height(), r = h - e.scrollTop() - u), r - o(c, s).cushion
+        }
+      t.fn.maximizeSelect2Height = function (e) {
+        return this.each(function (n, o) {
+          var c = t(o)
+          c.on("select2:open", function () {
+            setTimeout(function () {
+              var n = t("#select2-" + o.id + "-results"),
+                s = n.parent(),
+                r = s.parent(),
+                u = r.hasClass("select2-dropdown--below"),
+                h = i(c, n, r, e, u)
+              s.css("max-height", h), n.css("max-height", h), t(document).trigger("scroll")
+            })
+          })
+        })
+      }
+    }(jQuery)
+  </script>
 </head>
 
 <body class="has-navbar-fixed-top">
   <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="../">
-        <i class="fas fa-star-half-alt"></i>
+        <span class="fa-stack ">
+          <span class="icon"><i class="fas fa-tv fa-stack-2x"></i></span>
+          <span class="icon"><i class="fas fa-heart fa-xs fa-stack-1x"></i></span>
+        </span>
       </a>
     </div>
 
@@ -43,23 +83,36 @@
     </div>
   </nav>
 
-  <div class="tabs is-centered is-fullwidth">
-    <ul>
-      <li class="is-active"><a href='./'>
-        <span class="icon is-small"><i class="fas fa-search fa-sm" aria-hidden="true"></i></span>
-        <span>Find</span>
-      </a></li>
-      <li><a href='./rate'>
-        <span class="icon is-small"><i class="fas fa-star-half-alt fa-sm" aria-hidden="true"></i></span>
-        <span>Rate</span>
-      </a></li>
-      <li><a href='./list'>
-        <span class="icon is-small"><i class="fas fa-list fa-sm" aria-hidden="true"></i></span>
-        <span>List</span>
-      </a></li>
-    </ul>
+  <div class="container">
+    <div class="tabs is-centered is-fullwidth">
+      <ul>
+        <li class="is-active"><a href='./'>
+            <span class="icon is-small"><i class="fas fa-search fa-sm" aria-hidden="true"></i></span>
+            <span>Find</span>
+          </a></li>
+        <li><a href='./rate'>
+            <span class="icon is-small"><i class="fas fa-star-half-alt fa-sm" aria-hidden="true"></i></span>
+            <span>Rate</span>
+          </a></li>
+        <li><a href='./list'>
+            <span class="icon is-small"><i class="fas fa-list fa-sm" aria-hidden="true"></i></span>
+            <span>List</span>
+          </a></li>
+      </ul>
+    </div>
   </div>
 
+  <div class="section">
+    <div class="container has-text-centered">
+      <div class="columns">
+        <div class="column">
+          <select class="select" style="width: 100%" id="select-movie" size="10"></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="find.js"></script>
   <script src="../google.js"></script>
   <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()"
     onreadystatechange="if (this.readyState === 'complete') this.onload()">
