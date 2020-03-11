@@ -68,9 +68,8 @@ $(document).ready(function () {
 
   $('#select-movie').on('select2:select', function (e) {
     var movie = e.params.data;
-    console.log(movie);
-    console.log(currentUser)
-    createModal(movie)
+    getCurrentWatchList();
+    createModal(movie);
     // if (movieSet.has(data.id.toString())) {
     //   elem = document.getElementById(data.id)
     //   console.log(elem);
@@ -80,6 +79,8 @@ $(document).ready(function () {
     //   appendToSheet(data);
     // }
   });
+
+  // getCurrentWatchList();
 });
 
 $('#select-movie').select2().maximizeSelect2Height();
@@ -189,6 +190,7 @@ function createModal(movie) {
   var title = document.getElementById('title');
   var genre_elem = document.getElementById('genre');
   var language_elem = document.getElementById('language');
+  var addToList = document.getElementById('add-to-list');
 
   title.innerText = `${movie.text} ${date}`
   overview_elem.innerText = overview;
@@ -205,6 +207,58 @@ function createModal(movie) {
   }
   language_elem.innerText = movie.language.toUpperCase();
 
+  if (watchlist.has(''+movie.id)) {
+    addToList.disabled = true;
+    addToList.innerText = 'Already in list'
+  }
+
+  addToList.onclick = function() {
+    appendToList(movie);
+  }
+
   modal.toggleClass('is-active');
   $('html').toggleClass('is-clipped');
+}
+
+function appendToList(movie) {
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+
+  today = yyyy + '-' + mm + '-' + dd;
+
+  var dogaWants, basakWants;
+  if (currentUser.getGivenName() == 'Doga') {
+    dogaWants = true;
+    basakWants = false;
+  } else {
+    dogaWants = false;
+    basakWants = true;
+  }
+
+  gapi.client.sheets.spreadsheets.values.append({
+    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    range: 'Watchlist',
+    valueInputOption: 'USER_ENTERED',
+    resource: {
+      values: [
+        [movie.id,
+          movie.text,
+          movie.genre_ids.map(id => genres['' + id]).join(', '),
+          movie.popularity,
+          movie.release_date,
+          today,
+          movie.language,
+          movie.overview,
+          movie.poster_path,
+          dogaWants,
+          basakWants
+        ]
+      ]
+    }
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updates.updatedCells} cells appended.`)
+  });
 }

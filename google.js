@@ -11,47 +11,62 @@ var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 var googleButton = document.getElementById('google');
 var welcomeText = document.getElementById('welcome');
 
+var watchlist;
+
 function handleClientLoad() {
-    gapi.load('client:auth2', initClient);
+  gapi.load('client:auth2', initClient);
 }
 
 function initClient() {
-    gapi.client.init({
-        apiKey: API_KEY,
-        clientId: CLIENT_ID,
-        discoveryDocs: DISCOVERY_DOCS,
-        scope: SCOPES
-    }).then(function () {
-        // Listen for sign-in state changes.
-        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-        // Handle the initial sign-in state.  
-        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-        googleButton.onclick = handleGoogle;
-    }, function (error) {
-        console.log(JSON.stringify(error, null, 2));
-    });
+  gapi.client.init({
+    apiKey: API_KEY,
+    clientId: CLIENT_ID,
+    discoveryDocs: DISCOVERY_DOCS,
+    scope: SCOPES
+  }).then(function () {
+    // Listen for sign-in state changes.
+    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    // Handle the initial sign-in state.  
+    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    googleButton.onclick = handleGoogle;
+  }, function (error) {
+    console.log(JSON.stringify(error, null, 2));
+  });
 }
 
 function updateSigninStatus(isSignedIn) {
-    if (isSignedIn) {
-        currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
-        googleButton.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
-        // googleButton.innerHTML = '<img style="border-radius: 50%" src="' + currentUser.getImageUrl() + '"/>'        
-        if (welcomeText != null) {
-            welcomeText.innerHTML = 'Hi ' + currentUser.getGivenName() + '! <p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>';
-        }
-    } else {
-        googleButton.innerHTML = '<i class="fab fa-google"></i>';
-        if (welcomeText != null) {
-            welcomeText.innerHTML = 'First, sign in with Google!';
-        }
+  if (isSignedIn) {
+    currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
+    getCurrentWatchList();
+    googleButton.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+    // googleButton.innerHTML = '<img style="border-radius: 50%" src="' + currentUser.getImageUrl() + '"/>'        
+    if (welcomeText != null) {
+      welcomeText.innerHTML = 'Hi ' + currentUser.getGivenName() + '! <p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>';
     }
+  } else {
+    googleButton.innerHTML = '<i class="fab fa-google"></i>';
+    if (welcomeText != null) {
+      welcomeText.innerHTML = 'First, sign in with Google!';
+    }
+  }
 }
 
 function handleGoogle() {
-    if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
-        gapi.auth2.getAuthInstance().signOut();
-    } else {
-        gapi.auth2.getAuthInstance().signIn();
+  if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+    gapi.auth2.getAuthInstance().signOut();
+  } else {
+    gapi.auth2.getAuthInstance().signIn();
+  }
+}
+
+function getCurrentWatchList() {  
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    range: 'Watchlist'
+  }).then((response) => {
+    watchlist = new Set()
+    for (i = 1; i < response.result.values.length; i++) {
+      watchlist.add(response.result.values[i][0]);
     }
+  });
 }
