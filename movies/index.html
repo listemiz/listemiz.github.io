@@ -10,47 +10,14 @@
   <link rel='icon' href='../favicon.ico' type='image/x-icon'>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
   <link rel="stylesheet" href="../navbar.css">
+  <link rel="stylesheet" href="find.css">
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 
   <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
-  <script>
-    // maximize-select2-height v1.0.4
-    // (c) Panorama Education 2020
-    // MIT License
-    ! function (t) {
-      "use strict"
-      var e = t(window),
-        n = t(document),
-        o = function (o, i) {
-          return t.extend({
-            cushion: i && n.width() > e.width() ? 30 : 10
-          }, o)
-        },
-        i = function (t, n, i, c, s) {
-          var r, u, h
-          return s ? r = window.document.documentElement.clientHeight + e.scrollTop() - n.offset().top : (h = t.offset()
-            .top, u = i.height() - n.height(), r = h - e.scrollTop() - u), r - o(c, s).cushion
-        }
-      t.fn.maximizeSelect2Height = function (e) {
-        return this.each(function (n, o) {
-          var c = t(o)
-          c.on("select2:open", function () {
-            setTimeout(function () {
-              var n = t("#select2-" + o.id + "-results"),
-                s = n.parent(),
-                r = s.parent(),
-                u = r.hasClass("select2-dropdown--below"),
-                h = i(c, n, r, e, u)
-              s.css("max-height", h), n.css("max-height", h), t(document).trigger("scroll")
-            })
-          })
-        })
-      }
-    }(jQuery)
-  </script>
+  <script src='maximizeHeight.js'></script>
 </head>
 
 <body class="has-navbar-fixed-top">
@@ -112,8 +79,56 @@
     </div>
   </div>
 
-  <script src="find.js"></script>
+  <div aria-hidden="" class="modal" id="my-modal">
+    <div class="modal-background close-modal" data-modal-id="#my-modal"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title" id='title'>Movie Title (Year)</p>
+        <button class="delete close-modal" aria-label="close" data-modal-id="#my-modal"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <!-- <figure class="image is-128x128">
+          <img src="https://bulma.io/images/placeholders/320x480.png">
+        </figure> -->
+        <article class="media">
+          <figure class="media-left">
+            <p class="image">
+              <img id="poster" src="https://bulma.io/images/placeholders/320x480.png">
+            </p>
+          </figure>
+          <div class="media-content">
+            <nav class="level is-mobile">
+              <div class="level-left">
+                <div class="level-item">
+                  <p class="has-text-weight-semibold" id="genre">
+                    Comedy, Drama
+                  </p>
+                </div>
+              </div>
+
+              <div class="level-right">
+                <div class="level-item">
+                  <p class="is-italic" id="language">
+                    EN
+                  </p>
+                </div>
+              </div>
+            </nav>
+
+            <p id="movie-overview">overview</p>
+          </div>
+        </article>
+      </section>
+      <!-- <footer class="modal-card-foot">
+        <button class="button is-success">Save changes</button>
+        <button class="button">Cancel</button>
+      </footer> -->
+    </div>
+  </div>
+
   <script src="../google.js"></script>
+  <script src="find.js"></script>
   <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()"
     onreadystatechange="if (this.readyState === 'complete') this.onload()">
   </script>

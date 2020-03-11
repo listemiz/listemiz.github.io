@@ -36,9 +36,9 @@ function updateSigninStatus(isSignedIn) {
     if (isSignedIn) {
         currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
         googleButton.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+        // googleButton.innerHTML = '<img style="border-radius: 50%" src="' + currentUser.getImageUrl() + '"/>'        
         if (welcomeText != null) {
-            welcomeText.innerHTML = 'Hi ' + currentUser.getGivenName() + '!';
-            welcomeText.parentElement.innerHTML += '<p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>'
+            welcomeText.innerHTML = 'Hi ' + currentUser.getGivenName() + '! <p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>';
         }
     } else {
         googleButton.innerHTML = '<i class="fab fa-google"></i>';
