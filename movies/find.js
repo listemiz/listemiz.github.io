@@ -70,17 +70,7 @@ $(document).ready(function () {
     var movie = e.params.data;
     getCurrentWatchList();
     createModal(movie);
-    // if (movieSet.has(data.id.toString())) {
-    //   elem = document.getElementById(data.id)
-    //   console.log(elem);
-    //   elem.scrollIntoView(scrollIntoViewOptions={behavior: 'smooth'});
-    //   $("#" + data.id).delay(500).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-    // } else {
-    //   appendToSheet(data);
-    // }
   });
-
-  // getCurrentWatchList();
 });
 
 $('#select-movie').select2().maximizeSelect2Height();
@@ -209,11 +199,18 @@ function createModal(movie) {
 
   if (watchlist.has(''+movie.id)) {
     addToList.disabled = true;
-    addToList.innerText = 'Already in list'
+    addToList.innerText = 'Already in List'
+  } else {
+    addToList.disabled = false;
+    addToList.innerText = 'Add to List'
   }
 
   addToList.onclick = function() {
     appendToList(movie);
+    watchlist.add(''+movie.id);
+    console.log(watchlist)
+    modal.toggleClass('is-active');
+    $('html').toggleClass('is-clipped');
   }
 
   modal.toggleClass('is-active');

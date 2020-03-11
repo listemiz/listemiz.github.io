@@ -11,7 +11,8 @@ var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 var googleButton = document.getElementById('google');
 var welcomeText = document.getElementById('welcome');
 
-var watchlist;
+var cardHolder = document.getElementById('movies');
+var movies;
 
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
@@ -37,12 +38,11 @@ function initClient() {
 function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
-    getCurrentWatchList();
     googleButton.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
-    // googleButton.innerHTML = '<img style="border-radius: 50%" src="' + currentUser.getImageUrl() + '"/>'        
     if (welcomeText != null) {
       welcomeText.innerHTML = 'Hi ' + currentUser.getGivenName() + '! <p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>';
     }
+    showWatchlist();
   } else {
     googleButton.innerHTML = '<i class="fab fa-google"></i>';
     if (welcomeText != null) {
@@ -59,15 +59,55 @@ function handleGoogle() {
   }
 }
 
-function getCurrentWatchList() {  
+function showWatchlist() {
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
     range: 'Watchlist'
   }).then((response) => {
-    watchlist = new Set()
-    for (i = 1; i < response.result.values.length; i++) {
-      watchlist.add(response.result.values[i][0]);
+    movies = response.result.values;
+    showMovies(movies);
+  });
+}
+
+function showMovies(movies) {
+  var columns = {}
+  header = movies[0]
+  for (i = 0; i < header.length; i++) {
+    columns[header[i]] = i;
+  }
+
+  for (i = 1; i < movies.length; i++) {
+    row = movies[i];
+
+    if (row[columns['Poster Path']] != "") {
+      poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
+    } else {
+      poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
     }
-    console.log(watchlist);
+
+    column = document.createElement('div');
+    column.classList.add('column', 'is-one-third-mobile', 'is-one-quarter-tablet', 'is-one-fifth-desktop', 'is-2-widescreen');
+    column.innerHTML = `<div class="card">
+                          <div class="card-image">
+                            <figure class="image is-2by3">
+                              <img src="${poster}">
+                            </figure>
+                          </div>
+                          <div class="card-content">      
+                            <div class="content has-text-centered">
+                              <div class="my-rating"></div>
+                            </div>
+                          </div>
+                        </div>`;
+    cardHolder.appendChild(column);
+  }
+
+  $(".my-rating").starRating({
+    starSize: 25,
+    callback: function (currentRating, $el) {
+      console.log('DOM element ', $el);
+      col = $el[0].parentNode.parentNode.parentNode.parentNode;      
+      col.parentNode.removeChild(col);
+    }
   });
 }
