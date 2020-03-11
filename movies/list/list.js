@@ -85,29 +85,29 @@ function showMovies(movies) {
       poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
     }
 
-    column = document.createElement('div');
-    column.classList.add('column', 'is-one-third-mobile', 'is-one-quarter-tablet', 'is-one-fifth-desktop', 'is-2-widescreen');
-    column.innerHTML = `<div class="card">
-                          <div class="card-image">
-                            <figure class="image is-2by3">
-                              <img src="${poster}">
-                            </figure>
-                          </div>
-                          <div class="card-content">      
-                            <div class="content has-text-centered">
-                              <div class="my-rating"></div>
-                            </div>
-                          </div>
-                        </div>`;
-    cardHolder.appendChild(column);
-  }
+  //   column = document.createElement('div');
+  //   column.classList.add('column', 'is-one-third-mobile', 'is-one-quarter-tablet', 'is-one-fifth-desktop', 'is-2-widescreen');
+  //   column.innerHTML = `<div class="card">
+  //                         <div class="card-image">
+  //                           <figure class="image is-2by3">
+  //                             <img src="${poster}">
+  //                           </figure>
+  //                         </div>
+  //                         <div class="card-content">      
+  //                           <div class="content has-text-centered">
+  //                             <div class="my-rating"></div>
+  //                           </div>
+  //                         </div>
+  //                       </div>`;
+  //   cardHolder.appendChild(column);
+  // }
 
-  $(".my-rating").starRating({
-    starSize: 25,
-    callback: function (currentRating, $el) {
-      console.log('DOM element ', $el);
-      col = $el[0].parentNode.parentNode.parentNode.parentNode;      
-      col.parentNode.removeChild(col);
-    }
-  });
+  // $(".my-rating").starRating({
+  //   starSize: 25,
+  //   callback: function (currentRating, $el) {
+  //     console.log('DOM element ', $el);
+  //     col = $el[0].parentNode.parentNode.parentNode.parentNode;      
+  //     col.parentNode.removeChild(col);
+  //   }
+  // });
 }
