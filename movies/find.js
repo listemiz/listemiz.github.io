@@ -245,10 +245,10 @@ function appendToList(movie) {
           movie.genre_ids.map(id => genres['' + id]).join(', '),
           movie.popularity,
           movie.release_date,
-          today,
           movie.language,
           movie.overview,
           movie.poster_path,
+          today,
           dogaWants,
           basakWants
         ]
