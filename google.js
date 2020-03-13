@@ -6,7 +6,7 @@ var API_KEY = 'AIzaSyDHqXCo6WfXcqRouWwIGTGMMcAI0UV4ljE';
 var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
 
 // Authorization scopes required by the API; multiple scopes can be included, separated by spaces.
-var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
+var SCOPES = "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.profile";
 
 var googleButton = document.getElementById('google');
 var welcomeText = document.getElementById('welcome');
@@ -37,9 +37,8 @@ function initClient() {
 function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
-    getCurrentWatchList();
-    googleButton.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
-    // googleButton.innerHTML = '<img style="border-radius: 50%" src="' + currentUser.getImageUrl() + '"/>'        
+    img = currentUser.getGivenName() == 'Doga' ? 'doga.jpeg' : 'basak.jpeg';
+    googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'        
     if (welcomeText != null) {
       welcomeText.innerHTML = 'Hi ' + currentUser.getGivenName() + '! <p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>';
     }
@@ -57,17 +56,4 @@ function handleGoogle() {
   } else {
     gapi.auth2.getAuthInstance().signIn();
   }
-}
-
-function getCurrentWatchList() {  
-  gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    range: 'Watchlist'
-  }).then((response) => {
-    watchlist = new Set()
-    for (i = 1; i < response.result.values.length; i++) {
-      watchlist.add(response.result.values[i][0]);
-    }
-    console.log(watchlist);
-  });
 }

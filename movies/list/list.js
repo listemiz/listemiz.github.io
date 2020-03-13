@@ -9,7 +9,6 @@ var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"
 var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
 var googleButton = document.getElementById('google');
-var welcomeText = document.getElementById('welcome');
 
 var cardHolder = document.getElementById('movies');
 var movies;
@@ -39,16 +38,11 @@ function initClient() {
 function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
-    googleButton.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
-    if (welcomeText != null) {
-      welcomeText.innerHTML = 'Hi ' + currentUser.getGivenName() + '! <p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>';
-    }
+    img = currentUser.getGivenName() == 'Doga' ? '../../doga.jpeg' : '../../basak.jpeg';
+    googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'     
     showWatchlist();
   } else {
     googleButton.innerHTML = '<i class="fab fa-google"></i>';
-    if (welcomeText != null) {
-      welcomeText.innerHTML = 'First, sign in with Google!';
-    }
   }
 }
 

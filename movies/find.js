@@ -1,79 +1,115 @@
-var tmdbBase = 'https://api.themoviedb.org/3/';
-var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
+// Client ID and API key from the Developer Console
+var CLIENT_ID = '676098131753-moe956gvg3b76kms29bhjoqufdqid9ki.apps.googleusercontent.com';
+var API_KEY = 'AIzaSyDHqXCo6WfXcqRouWwIGTGMMcAI0UV4ljE';
 
-var imageBase;
-var posterSizes;
+// Array of API discovery doc URLs for APIs used by the quickstart
+var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
 
-var genres = {};
+// Authorization scopes required by the API; multiple scopes can be included, separated by spaces.
+var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
-$(document).ready(function () {
-  $.ajax({
-    type: "GET",
-    url: tmdbBase + "configuration?api_key=" + tmdbKey,
-    success: function (result) {
-      imageBase = result.images.secure_base_url;
-      posterSizes = result.images.poster_sizes;
-    },
-    error: function (result) {
-      console.log(result)
+var googleButton = document.getElementById('google');
+var watchlist;
+
+function handleClientLoad() {
+  gapi.load('client:auth2', initClient);
+}
+
+function initClient() {
+  gapi.client.init({
+    apiKey: API_KEY,
+    clientId: CLIENT_ID,
+    discoveryDocs: DISCOVERY_DOCS,
+    scope: SCOPES
+  }).then(function () {
+    // Listen for sign-in state changes.
+    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+    // Handle the initial sign-in state.  
+    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    googleButton.onclick = handleGoogle;
+  }, function (error) {
+    console.log(JSON.stringify(error, null, 2));
+  });
+}
+
+function updateSigninStatus(isSignedIn) {
+  if (isSignedIn) {
+    currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
+    img = currentUser.getGivenName() == 'Doga' ? '../doga.jpeg' : '../basak.jpeg';
+    googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'     
+    initSelector();
+  } else {
+    googleButton.innerHTML = '<i class="fab fa-google"></i>';
+  }
+}
+
+function handleGoogle() {
+  if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+    gapi.auth2.getAuthInstance().signOut();
+    window.location.reload(false); 
+  } else {
+    gapi.auth2.getAuthInstance().signIn();
+  }
+}
+
+function initSelector() {
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    range: 'Watchlist'
+  }).then((response) => {
+    watchlist = new Set()
+    for (i = 1; i < response.result.values.length; i++) {
+      watchlist.add(response.result.values[i][0]);
     }
-  })
+    console.log(watchlist);
 
-  $.ajax({
-    type: "GET",
-    url: tmdbBase + "genre/movie/list?api_key=" + tmdbKey,
-    success: function (result) {
-      for (i = 0; i < result.genres.length; i++) {
-        genres[result.genres[i].id] = result.genres[i].name;
-      }
-    },
-    error: function (result) {
-      console.log(result)
-    }
-  })
-
-  $('#select-movie').select2({
-    ajax: {
-      url: tmdbBase + 'search/movie',
-      dataType: 'json',
-      delay: 250,
-      minimumInputLength: 3,
-      placeholder: "Type a movie title!",
-      data: function (params) {
-        return {
-          api_key: tmdbKey,
-          query: params.term,
-        };
-      },
-      processResults: function (data) {
-        return {
-          'results': data.results.map(function (res) {
+    $(document).ready(function () {
+      $('#select-movie').select2({
+        ajax: {
+          url: tmdbBase + 'search/movie',
+          dataType: 'json',
+          delay: 250,
+          minimumInputLength: 3,
+          placeholder: "Type a movie title!",
+          data: function (params) {
             return {
-              'id': res.id,
-              'text': res.title,
-              'genre_ids': res.genre_ids,
-              'popularity': res.popularity,
-              'release_date': res.release_date,
-              'language': res.original_language,
-              'overview': res.overview,
-              'poster_path': res.poster_path
+              api_key: tmdbKey,
+              query: params.term,
+            };
+          },
+          processResults: function (data) {
+            return {
+              'results': data.results.map(function (res) {
+                return {
+                  'id': res.id,
+                  'text': res.title,
+                  'genre_ids': res.genre_ids,
+                  'popularity': res.popularity,
+                  'release_date': res.release_date,
+                  'language': res.original_language,
+                  'overview': res.overview,
+                  'poster_path': res.poster_path
+                }
+              })
             }
-          })
-        }
-      }
-    },
-    templateResult: formatMovie,
-    templateSelection: formatMovieSelection
-  });
+          }
+        },
+        templateResult: formatMovie,
+        templateSelection: formatMovieSelection
+      });
 
-  $('#select-movie').on('select2:select', function (e) {
-    var movie = e.params.data;
-    getCurrentWatchList();
-    createModal(movie);
-  });
-});
+      $('#select-movie').on('select2:select', function (e) {
+        var movie = e.params.data;
+        createModal(movie);
+      });
 
-$('#select-movie').select2().maximizeSelect2Height();
+      $('.open-modal').click(toggleModalClasses);
+      $('.close-modal').click(toggleModalClasses);
+    });
+    
+    $('#select-movie').select2().maximizeSelect2Height();
+  });
+}
 
 function formatMovie(movie) {
   var date, poster, overview;
@@ -143,11 +179,8 @@ function toggleModalClasses(event) {
   var modal = $(modalId);
   modal.toggleClass('is-active');
   $('html').toggleClass('is-clipped');
-};
+}
 
-$('.open-modal').click(toggleModalClasses);
-
-$('.close-modal').click(toggleModalClasses);
 
 function createModal(movie) {
   var date, poster, overview;
@@ -197,7 +230,7 @@ function createModal(movie) {
   }
   language_elem.innerText = movie.language.toUpperCase();
 
-  if (watchlist.has(''+movie.id)) {
+  if (watchlist.has('' + movie.id)) {
     addToList.disabled = true;
     addToList.innerText = 'Already in List'
   } else {
@@ -205,13 +238,31 @@ function createModal(movie) {
     addToList.innerText = 'Add to List'
   }
 
-  addToList.onclick = function() {
+  addToList.onclick = function () {
     appendToList(movie);
-    watchlist.add(''+movie.id);
-    console.log(watchlist)
+    watchlist.add('' + movie.id);
     modal.toggleClass('is-active');
     $('html').toggleClass('is-clipped');
   }
+
+  oldr = document.getElementById('old-rating');
+  if (oldr != null) {
+    oldr.parentNode.removeChild(oldr);
+  }
+
+  rating = document.createElement('div');
+  // rating.classList.add('my-rating');
+  rating.id = 'old-rating';
+  document.getElementById('modal-footer').appendChild(rating);
+
+  $('#old-rating').starRating({
+    starSize: 25,
+    callback: function (currentRating, $el) {
+      appendToRatings(movie, currentRating);
+      modal.toggleClass('is-active');
+      $('html').toggleClass('is-clipped');
+    }
+  })
 
   modal.toggleClass('is-active');
   $('html').toggleClass('is-clipped');
@@ -251,6 +302,49 @@ function appendToList(movie) {
           today,
           dogaWants,
           basakWants
+        ]
+      ]
+    }
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updates.updatedCells} cells appended.`)
+  });
+}
+
+function appendToRatings(movie, rating) {
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+
+  today = yyyy + '-' + mm + '-' + dd;
+
+  var dogaRating, basakRating;
+  if (currentUser.getGivenName() == 'Doga') {
+    dogaRating = rating;
+    basakRating = "";
+  } else {
+    dogaRating = "";
+    basakRating = rating;
+  }
+
+  gapi.client.sheets.spreadsheets.values.append({
+    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    range: 'Ratings',
+    valueInputOption: 'USER_ENTERED',
+    resource: {
+      values: [
+        [movie.id,
+          movie.text,
+          movie.genre_ids.map(id => genres['' + id]).join(', '),
+          movie.popularity,
+          movie.release_date,
+          movie.language,
+          movie.overview,
+          movie.poster_path,
+          today,
+          dogaRating,
+          basakRating
         ]
       ]
     }
