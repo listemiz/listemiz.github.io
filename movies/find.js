@@ -10,6 +10,7 @@ var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
 var googleButton = document.getElementById('google');
 var watchlist;
+var ratings;
 
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
@@ -53,15 +54,30 @@ function handleGoogle() {
 }
 
 function initSelector() {
-  gapi.client.sheets.spreadsheets.values.get({
+  gapi.client.sheets.spreadsheets.values.batchGet({
     spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    range: 'Watchlist'
+    ranges: ['Watchlist', 'Ratings']
   }).then((response) => {
+    console.log(response)
+
+    wl = response.result.valueRanges[0]
+    rt = response.result.valueRanges[1]
+
     watchlist = new Set()
-    for (i = 1; i < response.result.values.length; i++) {
-      watchlist.add(response.result.values[i][0]);
+    for (i = 1; i < wl.values.length; i++) {
+      watchlist.add(wl.values[i][0]);
     }
     console.log(watchlist);
+
+    ratings = {}
+    for (i = 1; i < rt.values.length; i++) {
+      ratings[rt.values[i][0]] = {
+        'Doga': rt.values[i][9],
+        'Basak': rt.values[i][10],
+      }
+      // rateList.add(rt.values[i][0]);
+    }
+    console.log(ratings);
 
     $(document).ready(function () {
       $('#select-movie').select2({
@@ -198,11 +214,7 @@ function createModal(movie) {
   }
 
   if (movie.overview != null) {
-    if (movie.overview.length > 300) {
-      overview = movie.overview.substring(0, 300) + '...';
-    } else {
-      overview = movie.overview;
-    }
+    overview = movie.overview;
   } else {
     overview = '';
   }
@@ -251,18 +263,34 @@ function createModal(movie) {
   }
 
   rating = document.createElement('div');
-  // rating.classList.add('my-rating');
   rating.id = 'old-rating';
   document.getElementById('modal-footer').appendChild(rating);
 
-  $('#old-rating').starRating({
-    starSize: 25,
-    callback: function (currentRating, $el) {
-      appendToRatings(movie, currentRating);
-      modal.toggleClass('is-active');
-      $('html').toggleClass('is-clipped');
-    }
-  })
+  if (movie.id in ratings) {
+    addToList.disabled = true;
+    addToList.innerText = 'Watched'
+    curRatings = ratings[movie.id]
+    yourRating = currentUser.getGivenName() == 'Doga' ? curRatings['Doga'] : curRatings['Basak'];
+    $('#old-rating').starRating({
+      starSize: 25,
+      initialRating: yourRating,
+      readOnly: true,
+      callback: function (currentRating, $el) {
+        appendToRatings(movie, currentRating);
+        modal.toggleClass('is-active');
+        $('html').toggleClass('is-clipped');
+      }
+    })
+  } else {
+    $('#old-rating').starRating({
+      starSize: 25,
+      callback: function (currentRating, $el) {
+        appendToRatings(movie, currentRating);
+        modal.toggleClass('is-active');
+        $('html').toggleClass('is-clipped');
+      }
+    })
+  }
 
   modal.toggleClass('is-active');
   $('html').toggleClass('is-clipped');
