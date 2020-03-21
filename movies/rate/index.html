@@ -10,10 +10,11 @@
   <link rel='icon' href='../../favicon.ico' type='image/x-icon'>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
   <link rel="stylesheet" href="../../navbar.css">
+  <link rel="stylesheet" href="../../star-rating-svg.css">
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-  <!-- <script src="script.js"></script> -->
+  <script src="../../jquery.star-rating-svg.js"></script>
 </head>
 
 <body class="has-navbar-fixed-top">
@@ -65,7 +66,15 @@
     </div>
   </div>
 
-  <script src="../../google.js"></script>
+  <div class="section">
+    <div class="container">
+      <div class="columns is-mobile is-multiline" id="movies">
+      </div>
+    </div>
+  </div>
+
+  <script src="../../base.js"></script>
+  <script src="rate.js"></script>
   <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()"
     onreadystatechange="if (this.readyState === 'complete') this.onload()">
   </script>
