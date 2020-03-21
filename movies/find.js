@@ -327,9 +327,9 @@ function appendToList(movie) {
           movie.language,
           movie.overview,
           movie.poster_path,
-          today,
           dogaWants,
-          basakWants
+          basakWants,
+          today
         ]
       ]
     }
@@ -370,9 +370,9 @@ function appendToRatings(movie, rating) {
           movie.language,
           movie.overview,
           movie.poster_path,
-          today,
           dogaRating,
-          basakRating
+          basakRating,
+          today
         ]
       ]
     }

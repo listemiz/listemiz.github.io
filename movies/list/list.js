@@ -148,9 +148,9 @@ function appendToRatings(movie, rating) {
 
   var ratings;
   if (currentUser.getGivenName() == 'Doga') {
-    ratings = [today, rating, ""];
+    ratings = [rating, "", today];
   } else {
-    ratings = [today, "", rating];
+    ratings = ["", rating, today];
   }
 
   gapi.client.sheets.spreadsheets.values.append({

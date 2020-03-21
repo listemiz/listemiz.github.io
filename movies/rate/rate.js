@@ -58,9 +58,10 @@ function handleGoogle() {
 function showRatelist() {
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    range: 'Ratings'
+    range: 'Ratings!A:K'
   }).then((response) => {
     movies = response.result.values;
+    console.log(movies);
     showMovies(movies);
   });
 }
@@ -176,21 +177,12 @@ function showMovies(movies) {
 }
 
 function rating(x) {
-  // col = 'has-text-warning'
-
-  if (x == null || x == "") {
+  if (x == "") {
     x = '??';
-    col = 'has-text-grey-light';
   } else if (x.length == 1) {
     x += '.0';
   }
-
   return x;
-
-  // return `<span class="icon ${col}">
-  //           <i class="fas fa-star"></i>
-  //         </span>
-  //         ${x}`
 }
 
 function appendToRatings(movie, rating) {
