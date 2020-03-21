@@ -58,10 +58,9 @@ function handleGoogle() {
 function showRatelist() {
   gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    range: 'Ratings!A:K'
+    range: 'Ratings'
   }).then((response) => {
     movies = response.result.values;
-    console.log(movies);
     showMovies(movies);
   });
 }
@@ -123,57 +122,6 @@ function showMovies(movies) {
                         </div>`;
     cardHolder.appendChild(column);
   }
-
-  // for (i = 0; i < ids.length; i++) {
-  //   id = ids[i];
-  //   $(`.${id}`).starRating({
-  //     starSize: 20,
-  //     initialRating: ratings[id]['Doga'],
-  //     readOnly: true
-  //   })
-  // }
-
-  // $(".my-rating").starRating({
-  //   starSize: 25
-  // })
-
-  //   $(".my-rating").starRating({
-  //     starSize: 25,
-  //     callback: function (currentRating, $el) {
-  //       // console.log('DOM element ', $el);
-  //       col = $el[0].parentNode.parentNode.parentNode.parentNode;
-  //       ind = ids.indexOf(col.id);
-  //       console.log(ind);
-
-  //       var batchUpdateRequest = {
-  //         requests: [
-  //           {
-  //             "deleteDimension": {
-  //               "range": {
-  //                 "dimension": "ROWS",
-  //                 "startIndex": ind + 1,
-  //                 "endIndex": ind + 2
-  //               }
-  //             }
-  //           }
-  //         ]
-  //       }
-
-  //       console.log(movies)
-  //       appendToRatings(movies[ind+1].slice(0, 8), currentRating);
-
-  //       gapi.client.sheets.spreadsheets.batchUpdate({
-  //         spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-  //         resource: batchUpdateRequest
-  //       }).then((response) => {
-  //         console.log(response);
-  //       });
-
-  //       col.parentNode.removeChild(col);
-  //       ids.splice(ind, 1);
-  //       movies.splice(ind+1, 1);
-  //     }
-  //   });
 }
 
 function rating(x) {

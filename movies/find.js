@@ -58,26 +58,24 @@ function initSelector() {
     spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
     ranges: ['Watchlist', 'Ratings']
   }).then((response) => {
-    console.log(response)
-
     wl = response.result.valueRanges[0]
     rt = response.result.valueRanges[1]
 
-    watchlist = new Set()
+    watchlist = {}
     for (i = 1; i < wl.values.length; i++) {
-      watchlist.add(wl.values[i][0]);
+      watchlist[wl.values[i][0]] = {
+        'Doga': wl.values[i][8],
+        'Basak': wl.values[i][9],
+      }
     }
-    console.log(watchlist);
 
     ratings = {}
     for (i = 1; i < rt.values.length; i++) {
       ratings[rt.values[i][0]] = {
-        'Doga': rt.values[i][9],
-        'Basak': rt.values[i][10],
+        'Doga': rt.values[i][8],
+        'Basak': rt.values[i][9],
       }
-      // rateList.add(rt.values[i][0]);
     }
-    console.log(ratings);
 
     $(document).ready(function () {
       $('#select-movie').select2({
@@ -242,7 +240,7 @@ function createModal(movie) {
   }
   language_elem.innerText = movie.language.toUpperCase();
 
-  if (watchlist.has('' + movie.id)) {
+  if (movie.id in watchlist && watchlist[movie.id][currentUser.getGivenName()] == "TRUE") {
     addToList.disabled = true;
     addToList.innerText = 'Already in List'
   } else {
@@ -266,7 +264,7 @@ function createModal(movie) {
   rating.id = 'old-rating';
   document.getElementById('modal-footer').appendChild(rating);
 
-  if (movie.id in ratings) {
+  if (movie.id in ratings && ratings[movie.id][currentUser.getGivenName()] != "") {
     addToList.disabled = true;
     addToList.innerText = 'Watched'
     curRatings = ratings[movie.id]
