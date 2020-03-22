@@ -68,12 +68,37 @@
 
   <div class="section">
     <div class="container">
-      <div class="columns is-mobile is-multiline" id="movies">
-      </div>
+      <nav class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <label for='filter' style='padding-right: 10px;'>Wanted by:</label>
+            <div class="select is-rounded">
+              <select id='filter'>
+                <option>Basak or Doga</option>
+                <option>Basak</option>
+                <option>Doga</option>
+                <option>Basak and Doga</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <label for='sort' style='padding-right: 10px;'>Sort by:</label>
+            <div class="select is-rounded">
+              <select id='sort'>
+                <option>Date added</option>
+                <option>Date released</option>
+                <option>Popularity</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="columns is-mobile is-multiline" id="movies"></div>
     </div>
   </div>
 
-  <!-- <script src="../../base.js"></script> -->
   <script src="list.js"></script>
   <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()"
     onreadystatechange="if (this.readyState === 'complete') this.onload()">

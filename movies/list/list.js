@@ -143,7 +143,6 @@ function showMovies(movies) {
 
   for (i = 1; i < movies.length; i++) {
     row = movies[i];
-    // ids.push(row[columns['ID']]);
 
     if (row[columns['Poster Path']] != "") {
       poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
