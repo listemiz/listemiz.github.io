@@ -9,8 +9,8 @@ var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"
 var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
 var googleButton = document.getElementById('google');
-var watchlist;
-var ratings;
+var watchlist, watchlistSize;
+var ratings, ratingsSize;
 
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
@@ -37,7 +37,7 @@ function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
     img = currentUser.getGivenName() == 'Doga' ? '../doga.jpeg' : '../basak.jpeg';
-    googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'     
+    googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'
     initSelector();
   } else {
     googleButton.innerHTML = '<i class="fab fa-google"></i>';
@@ -47,7 +47,7 @@ function updateSigninStatus(isSignedIn) {
 function handleGoogle() {
   if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
     gapi.auth2.getAuthInstance().signOut();
-    window.location.reload(false); 
+    window.location.reload(false);
   } else {
     gapi.auth2.getAuthInstance().signIn();
   }
@@ -66,16 +66,24 @@ function initSelector() {
       watchlist[wl.values[i][0]] = {
         'Doga': wl.values[i][8],
         'Basak': wl.values[i][9],
+        'row': i
       }
     }
+    watchlistSize = wl.values.length - 1;
+    // console.log(watchlist); 
+    // console.log(watchlistSize);
 
     ratings = {}
     for (i = 1; i < rt.values.length; i++) {
       ratings[rt.values[i][0]] = {
         'Doga': rt.values[i][8],
         'Basak': rt.values[i][9],
+        'row': i
       }
     }
+    ratingsSize = rt.values.length - 1;
+    // console.log(ratings);
+    // console.log(ratingsSize);
 
     $(document).ready(function () {
       $('#select-movie').select2({
@@ -120,7 +128,7 @@ function initSelector() {
       $('.open-modal').click(toggleModalClasses);
       $('.close-modal').click(toggleModalClasses);
     });
-    
+
     $('#select-movie').select2().maximizeSelect2Height();
   });
 }
@@ -240,7 +248,7 @@ function createModal(movie) {
   }
   language_elem.innerText = movie.language.toUpperCase();
 
-  if (movie.id in watchlist && watchlist[movie.id][currentUser.getGivenName()] == "TRUE") {
+  if (movie.id in watchlist && watchlist[movie.id][currentUser.getGivenName() == 'Doga' ? 'Doga' : 'Basak'] == "TRUE") {
     addToList.disabled = true;
     addToList.innerText = 'Already in List'
   } else {
@@ -249,8 +257,26 @@ function createModal(movie) {
   }
 
   addToList.onclick = function () {
-    appendToList(movie);
-    watchlist.add('' + movie.id);
+    if (movie.id in watchlist) {
+      watchlist[movie.id][currentUser.getGivenName() == 'Doga' ? 'Doga' : 'Basak'] = "TRUE";
+      updateList(movie);
+    } else {
+      appendToList(movie);
+      watchlistSize++;
+      if (currentUser.getGivenName() == 'Doga') {
+        watchlist[movie.id] = {
+          'Doga': 'TRUE',
+          'Basak': 'FALSE',
+          'row': watchlistSize
+        }
+      } else {
+        watchlist[movie.id] = {
+          'Doga': 'FALSE',
+          'Basak': 'TRUE',
+          'row': watchlistSize
+        }
+      }
+    }
     modal.toggleClass('is-active');
     $('html').toggleClass('is-clipped');
   }
@@ -264,7 +290,7 @@ function createModal(movie) {
   rating.id = 'old-rating';
   document.getElementById('modal-footer').appendChild(rating);
 
-  if (movie.id in ratings && ratings[movie.id][currentUser.getGivenName()] != "") {
+  if (movie.id in ratings && ratings[movie.id][currentUser.getGivenName() == 'Doga' ? 'Doga' : 'Basak'] != "") {
     addToList.disabled = true;
     addToList.innerText = 'Watched'
     curRatings = ratings[movie.id]
@@ -272,18 +298,33 @@ function createModal(movie) {
     $('#old-rating').starRating({
       starSize: 25,
       initialRating: yourRating,
-      readOnly: true,
-      callback: function (currentRating, $el) {
-        appendToRatings(movie, currentRating);
-        modal.toggleClass('is-active');
-        $('html').toggleClass('is-clipped');
-      }
+      readOnly: true
     })
   } else {
     $('#old-rating').starRating({
       starSize: 25,
       callback: function (currentRating, $el) {
-        appendToRatings(movie, currentRating);
+        if (movie.id in ratings) {
+          ratings[movie.id][currentUser.getGivenName() == 'Doga' ? 'Doga' : 'Basak'] = "" + currentRating;
+          updateRating(movie, currentRating);
+        } else {
+          appendToRatings(movie, currentRating);
+          ratingsSize++;
+          if (currentUser.getGivenName() == 'Doga') {
+            ratings[movie.id] = {
+              'Doga': '' + currentRating,
+              'Basak': '',
+              'row': ratingsSize
+            }
+          } else {
+            ratings[movie.id] = {
+              'Doga': '',
+              'Basak': '' + currentRating,
+              'row': ratingsSize
+            }
+          }
+        }
+        console.log(ratings);
         modal.toggleClass('is-active');
         $('html').toggleClass('is-clipped');
       }
@@ -377,5 +418,41 @@ function appendToRatings(movie, rating) {
   }).then((response) => {
     var result = response.result;
     console.log(`${result.updates.updatedCells} cells appended.`)
+  });
+}
+
+function updateList(movie) {
+  row = watchlist[movie.id]['row'] + 1;
+  col = currentUser.getGivenName() == 'Doga' ? 'I' : 'K';
+  gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    range: `Watchlist!${col}${row}`,
+    valueInputOption: 'USER_ENTERED',
+    resource: {
+      values: [
+        ["TRUE"]
+      ]
+    }
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
+  });
+}
+
+function updateRating(movie, currentRating) {
+  row = ratings[movie.id]['row'] + 1;
+  col = currentUser.getGivenName() == 'Doga' ? 'I' : 'K';
+  gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    range: `Ratings!${col}${row}`,
+    valueInputOption: 'USER_ENTERED',
+    resource: {
+      values: [
+        ["" + currentRating]
+      ]
+    }
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
   });
 }
