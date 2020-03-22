@@ -12,6 +12,13 @@ var googleButton = document.getElementById('google');
 var watchlist, watchlistSize;
 var ratings, ratingsSize;
 
+var imageBase;
+var posterSizes;
+var genres;
+
+var tmdbBase = 'https://api.themoviedb.org/3/';
+var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
+
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
 }
@@ -86,51 +93,83 @@ function initSelector() {
     // console.log(ratingsSize);
 
     $(document).ready(function () {
-      $('#select-movie').select2({
-        ajax: {
-          url: tmdbBase + 'search/movie',
-          dataType: 'json',
-          delay: 250,
-          minimumInputLength: 3,
-          placeholder: "Type a movie title!",
-          data: function (params) {
-            return {
-              api_key: tmdbKey,
-              query: params.term,
-            };
-          },
-          processResults: function (data) {
-            return {
-              'results': data.results.map(function (res) {
-                return {
-                  'id': res.id,
-                  'text': res.title,
-                  'genre_ids': res.genre_ids,
-                  'popularity': res.popularity,
-                  'release_date': res.release_date,
-                  'language': res.original_language,
-                  'overview': res.overview,
-                  'poster_path': res.poster_path
+      $(document).ready(function () {
+        $.ajax({
+          type: "GET",
+          url: tmdbBase + "configuration?api_key=" + tmdbKey,
+          success: function (result) {
+            imageBase = result.images.secure_base_url;
+            posterSizes = result.images.poster_sizes;
+
+            genres = {};
+
+            $.ajax({
+              type: "GET",
+              url: tmdbBase + "genre/movie/list?api_key=" + tmdbKey,
+              success: function (result) {
+                for (i = 0; i < result.genres.length; i++) {
+                  genres[result.genres[i].id] = result.genres[i].name;
                 }
-              })
-            }
+                initializeSelector();
+              },
+              error: function (result) {
+                console.log(result)
+              }
+            });
+          },
+          error: function (result) {
+            console.log(result)
           }
-        },
-        templateResult: formatMovie,
-        templateSelection: formatMovieSelection
+        });
       });
-
-      $('#select-movie').on('select2:select', function (e) {
-        var movie = e.params.data;
-        createModal(movie);
-      });
-
-      $('.open-modal').click(toggleModalClasses);
-      $('.close-modal').click(toggleModalClasses);
     });
 
     $('#select-movie').select2().maximizeSelect2Height();
   });
+}
+
+function initializeSelector() {
+  $('#select-movie').select2({
+    ajax: {
+      url: tmdbBase + 'search/movie',
+      dataType: 'json',
+      delay: 250,
+      minimumInputLength: 3,
+      placeholder: "Type a movie title!",
+      data: function (params) {
+        return {
+          api_key: tmdbKey,
+          query: params.term,
+        };
+      },
+      processResults: function (data) {
+        return {
+          'results': data.results.map(function (res) {
+            return {
+              'id': res.id,
+              'text': res.title,
+              'genre_ids': res.genre_ids,
+              'popularity': res.popularity,
+              'release_date': res.release_date,
+              'language': res.original_language,
+              'overview': res.overview,
+              'poster_path': res.poster_path
+            }
+          })
+        }
+      }
+    },
+    templateResult: formatMovie,
+    templateSelection: formatMovieSelection
+  });
+
+  $('#select-movie').on('select2:select', function (e) {
+    var movie = e.params.data;
+    createModal(movie);
+  });
+
+  $('.open-modal').click(toggleModalClasses);
+  $('.close-modal').click(toggleModalClasses);
 }
 
 function formatMovie(movie) {

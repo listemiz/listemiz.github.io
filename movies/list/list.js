@@ -9,10 +9,18 @@ var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"
 var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
 var googleButton = document.getElementById('google');
-
 var cardHolder = document.getElementById('movies');
-var movies;
-var ids = [];
+// var movies;
+// var ids = [];
+var watchlist, watchlistSize;
+var ratings, ratingsSize;
+
+var imageBase;
+var posterSizes;
+var genres;
+
+var tmdbBase = 'https://api.themoviedb.org/3/';
+var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
 
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
@@ -39,7 +47,7 @@ function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
     img = currentUser.getGivenName() == 'Doga' ? '../../doga.jpeg' : '../../basak.jpeg';
-    googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'     
+    googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'
     showWatchlist();
   } else {
     googleButton.innerHTML = '<i class="fab fa-google"></i>';
@@ -55,13 +63,73 @@ function handleGoogle() {
 }
 
 function showWatchlist() {
-  gapi.client.sheets.spreadsheets.values.get({
+  gapi.client.sheets.spreadsheets.values.batchGet({
     spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    range: 'Watchlist'
+    ranges: ['Watchlist', 'Ratings']
   }).then((response) => {
-    movies = response.result.values;
-    showMovies(movies);
+    wl = response.result.valueRanges[0]
+    rt = response.result.valueRanges[1]
+
+    watchlist = {}
+    for (i = 1; i < wl.values.length; i++) {
+      watchlist[wl.values[i][0]] = {
+        'Doga': wl.values[i][8],
+        'Basak': wl.values[i][9],
+        'row': i
+      }
+    }
+    watchlistSize = wl.values.length - 1;
+    // console.log(watchlist); 
+    // console.log(watchlistSize);
+
+    ratings = {}
+    for (i = 1; i < rt.values.length; i++) {
+      ratings[rt.values[i][0]] = {
+        'Doga': rt.values[i][8],
+        'Basak': rt.values[i][9],
+        'row': i
+      }
+    }
+    ratingsSize = rt.values.length - 1;
+
+    $(document).ready(function () {
+      $.ajax({
+        type: "GET",
+        url: tmdbBase + "configuration?api_key=" + tmdbKey,
+        success: function (result) {
+          imageBase = result.images.secure_base_url;
+          posterSizes = result.images.poster_sizes;
+
+          genres = {};
+
+          $.ajax({
+            type: "GET",
+            url: tmdbBase + "genre/movie/list?api_key=" + tmdbKey,
+            success: function (result) {
+              for (i = 0; i < result.genres.length; i++) {
+                genres[result.genres[i].id] = result.genres[i].name;
+              }
+              showMovies(wl.values);
+            },
+            error: function (result) {
+              console.log(result)
+            }
+          });
+        },
+        error: function (result) {
+          console.log(result)
+        }
+      });
+    });
   });
+
+  // gapi.client.sheets.spreadsheets.values.get({
+  //   spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+  //   range: 'Watchlist'
+  // }).then((response) => {
+  //   movies = response.result.values;
+  //   showMovies(movies);
+  // });
 }
 
 function showMovies(movies) {
@@ -73,7 +141,7 @@ function showMovies(movies) {
 
   for (i = 1; i < movies.length; i++) {
     row = movies[i];
-    ids.push(row[columns['ID']]);
+    // ids.push(row[columns['ID']]);
 
     if (row[columns['Poster Path']] != "") {
       poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
@@ -104,36 +172,40 @@ function showMovies(movies) {
     callback: function (currentRating, $el) {
       // console.log('DOM element ', $el);
       col = $el[0].parentNode.parentNode.parentNode.parentNode;
+
+      if (col.id in ratings) {
+        console.log(ratings[col.id])
+      }
+
+
       ind = ids.indexOf(col.id);
       console.log(ind);
-      
+
       var batchUpdateRequest = {
-        requests: [
-          {
-            "deleteDimension": {
-              "range": {
-                "dimension": "ROWS",
-                "startIndex": ind + 1,
-                "endIndex": ind + 2
-              }
+        requests: [{
+          "deleteDimension": {
+            "range": {
+              "dimension": "ROWS",
+              "startIndex": ind + 1,
+              "endIndex": ind + 2
             }
           }
-        ]
+        }]
       }
-      
+
       console.log(movies)
-      appendToRatings(movies[ind+1].slice(0, 8), currentRating);
-      
+      appendToRatings(movies[ind + 1].slice(0, 8), currentRating);
+
       gapi.client.sheets.spreadsheets.batchUpdate({
         spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
         resource: batchUpdateRequest
       }).then((response) => {
         console.log(response);
       });
-      
+
       col.parentNode.removeChild(col);
       ids.splice(ind, 1);
-      movies.splice(ind+1, 1);
+      movies.splice(ind + 1, 1);
     }
   });
 }
