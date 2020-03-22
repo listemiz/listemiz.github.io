@@ -462,7 +462,7 @@ function appendToRatings(movie, rating) {
 
 function updateList(movie) {
   row = watchlist[movie.id]['row'] + 1;
-  col = currentUser.getGivenName() == 'Doga' ? 'I' : 'K';
+  col = currentUser.getGivenName() == 'Doga' ? 'I' : 'J';
   gapi.client.sheets.spreadsheets.values.update({
     spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
     range: `Watchlist!${col}${row}`,
@@ -480,7 +480,7 @@ function updateList(movie) {
 
 function updateRating(movie, currentRating) {
   row = ratings[movie.id]['row'] + 1;
-  col = currentUser.getGivenName() == 'Doga' ? 'I' : 'K';
+  col = currentUser.getGivenName() == 'Doga' ? 'I' : 'J';
   gapi.client.sheets.spreadsheets.values.update({
     spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
     range: `Ratings!${col}${row}`,
