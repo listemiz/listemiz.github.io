@@ -10,8 +10,7 @@ var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
 var googleButton = document.getElementById('google');
 var cardHolder = document.getElementById('movies');
-// var movies;
-// var ids = [];
+
 var watchlist, watchlistSize;
 var ratings, ratingsSize;
 
@@ -21,6 +20,8 @@ var genres;
 
 var tmdbBase = 'https://api.themoviedb.org/3/';
 var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
+
+var deletedRows = [];
 
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
@@ -75,7 +76,8 @@ function showWatchlist() {
       watchlist[wl.values[i][0]] = {
         'Doga': wl.values[i][8],
         'Basak': wl.values[i][9],
-        'row': i
+        'row': i,
+        'values': wl.values[i].slice(0, 8)
       }
     }
     watchlistSize = wl.values.length - 1;
@@ -170,42 +172,47 @@ function showMovies(movies) {
   $(".my-rating").starRating({
     starSize: 25,
     callback: function (currentRating, $el) {
-      // console.log('DOM element ', $el);
       col = $el[0].parentNode.parentNode.parentNode.parentNode;
 
       if (col.id in ratings) {
-        console.log(ratings[col.id])
+        updateRating(col.id, currentRating);
+      } else {
+        appendToRatings(watchlist[col.id]['values'], currentRating);
       }
+      
+      if (watchlist[col.id][currentUser.getGivenName() == 'Doga' ? 'Basak' : 'Doga'] == 'TRUE') {
+        updateList(col.id);
+      } else {
+        initialRow = watchlist[col.id]['row'];
+        console.log(initialRow);
 
-
-      ind = ids.indexOf(col.id);
-      console.log(ind);
-
-      var batchUpdateRequest = {
-        requests: [{
-          "deleteDimension": {
-            "range": {
-              "dimension": "ROWS",
-              "startIndex": ind + 1,
-              "endIndex": ind + 2
-            }
+        offset = 0;
+        for (i = 0; i < deletedRows.length; i++) {
+          if (deletedRows[i] < initialRow) {
+            offset++;
           }
-        }]
+        }
+
+        deletedRows.push(initialRow);
+
+        gapi.client.sheets.spreadsheets.batchUpdate({
+          spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+          resource: {
+            requests: [{
+              "deleteDimension": {
+                "range": {
+                  "dimension": "ROWS",
+                  "startIndex": initialRow - offset,
+                  "endIndex": initialRow - offset + 1
+                }
+              }
+            }]
+          }
+        }).then((response) => {
+          console.log(response);
+        });
       }
-
-      console.log(movies)
-      appendToRatings(movies[ind + 1].slice(0, 8), currentRating);
-
-      gapi.client.sheets.spreadsheets.batchUpdate({
-        spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-        resource: batchUpdateRequest
-      }).then((response) => {
-        console.log(response);
-      });
-
       col.parentNode.removeChild(col);
-      ids.splice(ind, 1);
-      movies.splice(ind + 1, 1);
     }
   });
 }
@@ -237,5 +244,41 @@ function appendToRatings(movie, rating) {
   }).then((response) => {
     var result = response.result;
     console.log(`${result.updates.updatedCells} cells appended.`)
+  });
+}
+
+function updateList(movieId) {
+  row = watchlist[movieId]['row'] + 1;
+  column = currentUser.getGivenName() == 'Doga' ? 'I' : 'K';
+  gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    range: `Watchlist!${column}${row}`,
+    valueInputOption: 'USER_ENTERED',
+    resource: {
+      values: [
+        ["FALSE"]
+      ]
+    }
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
+  });
+}
+
+function updateRating(movieId, currentRating) {
+  row = ratings[movieId]['row'] + 1;
+  column = currentUser.getGivenName() == 'Doga' ? 'I' : 'K';
+  gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    range: `Ratings!${column}${row}`,
+    valueInputOption: 'USER_ENTERED',
+    resource: {
+      values: [
+        ["" + currentRating]
+      ]
+    }
+  }).then((response) => {
+    var result = response.result;
+    console.log(`${result.updatedCells} cells updated.`);
   });
 }
