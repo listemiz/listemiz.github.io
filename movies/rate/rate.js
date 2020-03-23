@@ -85,7 +85,7 @@ function showRatelist() {
               for (i = 0; i < result.genres.length; i++) {
                 genres[result.genres[i].id] = result.genres[i].name;
               }
-              showMovies(movies);
+              showMovies();
             },
             error: function (result) {
               console.log(result)
@@ -100,7 +100,7 @@ function showRatelist() {
   });
 }
 
-function showMovies(movies) {
+function showMovies(filter = 'Basak or Doga') {
   var columns = {}
   header = movies[0]
   for (i = 0; i < header.length; i++) {
@@ -110,52 +110,54 @@ function showMovies(movies) {
   for (i = 1; i < movies.length; i++) {
     row = movies[i];
     ids.push(row[columns['ID']]);
-    ratings[row[columns['ID']]] = {
-      'Doga': row[columns['Doga Rating']],
-      'Basak': row[columns['Basak Rating']]
-    }
+    if (filter == 'Basak or Doga' || (filter == 'Basak' && row[columns['Basak Rating']] != '') || (filter == 'Doga' && row[columns['Doga Rating']] != '') || (filter == 'Basak and Doga' && row[columns['Basak Rating']] != '' && row[columns['Doga Rating']] != '')) {
+      ratings[row[columns['ID']]] = {
+        'Doga': row[columns['Doga Rating']],
+        'Basak': row[columns['Basak Rating']]
+      }
 
-    if (row[columns['Poster Path']] != "") {
-      poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
-    } else {
-      poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
-    }
+      if (row[columns['Poster Path']] != "") {
+        poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
+      } else {
+        poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
+      }
 
-    column = document.createElement('div');
-    column.id = row[columns['ID']];
-    column.classList.add('column', 'is-one-third-mobile', 'is-one-quarter-tablet', 'is-one-fifth-desktop', 'is-2-widescreen');
-    column.innerHTML = `<div class="card">
-                          <div class="card-image">
-                            <figure class="image is-2by3">
-                              <img src="${poster}">
-                            </figure>
-                          </div>
-                          <div class="card-content">      
-                            <nav class="level">
-                              <div class="level-left">
-                                <div class="level-item">
-                                  <figure class="image is-32x32">
-                                    <img class="is-rounded" src="../../doga.jpeg">
-                                  </figure>
-                                  <div style="padding-left: 5px;">
-                                    ${rating(row[columns['Doga Rating']])}
+      column = document.createElement('div');
+      column.id = row[columns['ID']];
+      column.classList.add('column', 'is-one-third-mobile', 'is-one-quarter-tablet', 'is-one-fifth-desktop', 'is-2-widescreen');
+      column.innerHTML = `<div class="card">
+                            <div class="card-image">
+                              <figure class="image is-2by3">
+                                <img src="${poster}">
+                              </figure>
+                            </div>
+                            <div class="card-content">      
+                              <nav class="level">
+                                <div class="level-left">
+                                  <div class="level-item">
+                                    <figure class="image is-32x32">
+                                      <img class="is-rounded" src="../../doga.jpeg">
+                                    </figure>
+                                    <div style="padding-left: 5px;">
+                                      ${rating(row[columns['Doga Rating']])}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div class="level-right">
-                                <div class="level-item">                                
-                                  <figure class="image is-32x32">
-                                    <img class="is-rounded" src="../../basak.jpeg">
-                                  </figure>
-                                  <div style="padding-left: 5px;">
-                                    ${rating(row[columns['Basak Rating']])}
+                                <div class="level-right">
+                                  <div class="level-item">                                
+                                    <figure class="image is-32x32">
+                                      <img class="is-rounded" src="../../basak.jpeg">
+                                    </figure>
+                                    <div style="padding-left: 5px;">
+                                      ${rating(row[columns['Basak Rating']])}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </nav>
-                          </div>
-                        </div>`;
-    cardHolder.appendChild(column);
+                              </nav>
+                            </div>
+                          </div>`;
+      cardHolder.appendChild(column);
+    }
   }
 }
 
@@ -196,4 +198,10 @@ function appendToRatings(movie, rating) {
     var result = response.result;
     console.log(`${result.updates.updatedCells} cells appended.`)
   });
+}
+
+function filterChanged() {
+  filter = document.getElementById('filter').value;
+  cardHolder.innerHTML = "";
+  showMovies(filter);
 }
