@@ -23,6 +23,8 @@ var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
 
 var deletedRows = [];
 
+var movies;
+
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
 }
@@ -83,6 +85,7 @@ function showWatchlist() {
     watchlistSize = wl.values.length - 1;
     // console.log(watchlist); 
     // console.log(watchlistSize);
+    movies = wl.values;
 
     ratings = {}
     for (i = 1; i < rt.values.length; i++) {
@@ -111,7 +114,7 @@ function showWatchlist() {
               for (i = 0; i < result.genres.length; i++) {
                 genres[result.genres[i].id] = result.genres[i].name;
               }
-              showMovies(wl.values);
+              showMovies();
             },
             error: function (result) {
               console.log(result)
@@ -134,7 +137,7 @@ function showWatchlist() {
   // });
 }
 
-function showMovies(movies) {
+function showMovies(filter='Basak or Doga') {
   var columns = {}
   header = movies[0]
   for (i = 0; i < header.length; i++) {
@@ -144,28 +147,30 @@ function showMovies(movies) {
   for (i = 1; i < movies.length; i++) {
     row = movies[i];
 
-    if (row[columns['Poster Path']] != "") {
-      poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
-    } else {
-      poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
-    }
+    if (filter == 'Basak or Doga' || (filter == 'Basak' && row[columns['Basak Wants']] == 'TRUE') || (filter == 'Doga' && row[columns['Doga Wants']] == 'TRUE') || (filter == 'Basak and Doga' && row[columns['Basak Wants']] == 'TRUE' && row[columns['Doga Wants']] == 'TRUE')) {
+      if (row[columns['Poster Path']] != "") {
+        poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
+      } else {
+        poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
+      }
 
-    column = document.createElement('div');
-    column.id = row[columns['ID']];
-    column.classList.add('column', 'is-one-third-mobile', 'is-one-quarter-tablet', 'is-one-fifth-desktop', 'is-2-widescreen');
-    column.innerHTML = `<div class="card">
-                          <div class="card-image">
-                            <figure class="image is-2by3">
-                              <img src="${poster}">
-                            </figure>
-                          </div>
-                          <div class="card-content">      
-                            <div class="content has-text-centered">
-                              <div class="my-rating"></div>
+      column = document.createElement('div');
+      column.id = row[columns['ID']];
+      column.classList.add('column', 'is-one-third-mobile', 'is-one-quarter-tablet', 'is-one-fifth-desktop', 'is-2-widescreen');
+      column.innerHTML = `<div class="card">
+                            <div class="card-image">
+                              <figure class="image is-2by3">
+                                <img src="${poster}">
+                              </figure>
                             </div>
-                          </div>
-                        </div>`;
-    cardHolder.appendChild(column);
+                            <div class="card-content">      
+                              <div class="content has-text-centered">
+                                <div class="my-rating"></div>
+                              </div>
+                            </div>
+                          </div>`;
+      cardHolder.appendChild(column);
+    }
   }
 
   $(".my-rating").starRating({
@@ -178,7 +183,7 @@ function showMovies(movies) {
       } else {
         appendToRatings(watchlist[col.id]['values'], currentRating);
       }
-      
+
       if (watchlist[col.id][currentUser.getGivenName() == 'Doga' ? 'Basak' : 'Doga'] == 'TRUE') {
         updateList(col.id);
       } else {
@@ -280,4 +285,10 @@ function updateRating(movieId, currentRating) {
     var result = response.result;
     console.log(`${result.updatedCells} cells updated.`);
   });
+}
+
+function filterChanged() {
+  filter = document.getElementById('filter').value;
+  cardHolder.innerHTML = "";
+  showMovies(filter);
 }
