@@ -12,8 +12,10 @@ var googleButton = document.getElementById('google');
 
 var cardHolder = document.getElementById('movies');
 var movies;
+var moviesInit;
 var ids = [];
 var ratings = {};
+var columns = {}
 
 var tmdbBase = 'https://api.themoviedb.org/3/';
 var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
@@ -67,7 +69,12 @@ function showRatelist() {
     spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
     range: 'Ratings'
   }).then((response) => {
-    movies = response.result.values;
+    moviesInit = response.result.values;
+    header = moviesInit[0]
+    for (i = 0; i < header.length; i++) {
+      columns[header[i]] = i;
+    }
+    movies = moviesInit.slice(1);
     $(document).ready(function () {
       $.ajax({
         type: "GET",
@@ -101,13 +108,7 @@ function showRatelist() {
 }
 
 function showMovies(filter = 'Basak or Doga') {
-  var columns = {}
-  header = movies[0]
-  for (i = 0; i < header.length; i++) {
-    columns[header[i]] = i;
-  }
-
-  for (i = 1; i < movies.length; i++) {
+  for (i = 0; i < movies.length; i++) {
     row = movies[i];
     ids.push(row[columns['ID']]);
     if (filter == 'Basak or Doga' || (filter == 'Basak' && row[columns['Basak Rating']] != '') || (filter == 'Doga' && row[columns['Doga Rating']] != '') || (filter == 'Basak and Doga' && row[columns['Basak Rating']] != '' && row[columns['Doga Rating']] != '')) {
@@ -202,6 +203,23 @@ function appendToRatings(movie, rating) {
 
 function filterChanged() {
   filter = document.getElementById('filter').value;
+  cardHolder.innerHTML = "";
+  showMovies(filter);
+}
+
+function sortChanged() {
+  order = document.getElementById('sort').value;
+  filter = document.getElementById('filter').value;
+  if (order == 'Release Date') {
+    movies.sort((a, b) => a[columns[order]].localeCompare(b[columns[order]]));
+  } else if (order == 'Date Added') {
+    movies = moviesInit.slice(1);
+  } else if (order == 'Doga + Basak') {
+    console.log('eyy')
+    movies.sort((a, b) => Number(a[columns['Doga Rating']]) + Number(a[columns['Basak Rating']]) - Number(b[columns['Doga Rating']]) - Number(b[columns['Basak Rating']]));
+  } else {
+    movies.sort((a, b) => a[columns[order]] - b[columns[order]]);
+  }
   cardHolder.innerHTML = "";
   showMovies(filter);
 }
