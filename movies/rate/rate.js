@@ -92,6 +92,8 @@ function showRatelist() {
               for (i = 0; i < result.genres.length; i++) {
                 genres[result.genres[i].id] = result.genres[i].name;
               }
+              $('.open-modal').click(toggleModalClasses);
+              $('.close-modal').click(toggleModalClasses);
               showMovies();
             },
             error: function (result) {
@@ -129,7 +131,7 @@ function showMovies(filter = 'Basak or Doga') {
       column.innerHTML = `<div class="card">
                             <div class="card-image">
                               <figure class="image is-2by3">
-                                <img src="${poster}">
+                                <a onclick="createModal(${i})"><img src="${poster}"></a>
                               </figure>
                             </div>
                             <div class="card-content">      
@@ -237,4 +239,104 @@ function reSort() {
 
   cardHolder.innerHTML = "";
   showMovies(filter);
+}
+
+function toggleModalClasses(event) {
+  var modalId = event.currentTarget.dataset.modalId;
+  var modal = $(modalId);
+  modal.toggleClass('is-active');
+  $('html').toggleClass('is-clipped');
+}
+
+function createModal(movieRow) {
+  movie = movies[movieRow];
+  var modal = $('#my-modal');
+  var date, poster;
+
+  if (movie[columns['Release Date']] != "") {
+    date = `(${movie[columns['Release Date']].substring(0,4)})`
+  } else {
+    date = '(????)'
+  }
+
+  if (movie[columns['Poster Path']] != "") {
+    poster = imageBase + posterSizes[1] + movie[columns['Poster Path']];
+  } else {
+    poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
+  }
+
+  var overview_elem = document.getElementById('movie-overview')
+  var poster_elem = document.getElementById('poster');
+  var title = document.getElementById('title');
+  var genre_elem = document.getElementById('genre');
+  var language_elem = document.getElementById('language');
+
+  title.innerText = `${movie[columns['Title']]} ${date}`
+  overview_elem.innerText = movie[columns['Overview']];
+  poster_elem.src = poster;
+
+  if (movie[columns['Genres']] == "") {
+    genre_elem.innerText = 'Unknown Genre';
+  } else {
+    genre_elem.innerText = movie[columns['Genres']];
+  }
+
+  if (movie.language == "") {
+    language_elem.innerText = '??';
+  } else {
+    language_elem.innerText = movie[columns['Language']].toUpperCase();
+  }
+
+  // oldr = document.getElementById('old-rating');
+  // if (oldr != null) {
+  //   oldr.parentNode.removeChild(oldr);
+  // }
+
+  // rating = document.createElement('div');
+  // rating.id = 'old-rating';
+  // document.getElementById('modal-footer').appendChild(rating);
+
+  // if (movie.id in ratings && ratings[movie.id][currentUser.getGivenName() == 'Doga' ? 'Doga' : 'Basak'] != "") {
+  //   addToList.disabled = true;
+  //   addToList.innerText = 'Watched'
+  //   curRatings = ratings[movie.id]
+  //   yourRating = currentUser.getGivenName() == 'Doga' ? curRatings['Doga'] : curRatings['Basak'];
+  //   $('#old-rating').starRating({
+  //     starSize: 25,
+  //     initialRating: yourRating,
+  //     readOnly: true
+  //   })
+  // } else {
+  //   $('#old-rating').starRating({
+  //     starSize: 25,
+  //     callback: function (currentRating, $el) {
+  //       if (movie.id in ratings) {
+  //         ratings[movie.id][currentUser.getGivenName() == 'Doga' ? 'Doga' : 'Basak'] = "" + currentRating;
+  //         updateRating(movie, currentRating);
+  //       } else {
+  //         appendToRatings(movie, currentRating);
+  //         ratingsSize++;
+  //         if (currentUser.getGivenName() == 'Doga') {
+  //           ratings[movie.id] = {
+  //             'Doga': '' + currentRating,
+  //             'Basak': '',
+  //             'row': ratingsSize
+  //           }
+  //         } else {
+  //           ratings[movie.id] = {
+  //             'Doga': '',
+  //             'Basak': '' + currentRating,
+  //             'row': ratingsSize
+  //           }
+  //         }
+  //       }
+  //       console.log(ratings);
+  //       modal.toggleClass('is-active');
+  //       $('html').toggleClass('is-clipped');
+  //     }
+  //   })
+  // }
+
+  modal.toggleClass('is-active');
+  $('html').toggleClass('is-clipped');
 }

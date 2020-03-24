@@ -242,7 +242,6 @@ function toggleModalClasses(event) {
   $('html').toggleClass('is-clipped');
 }
 
-
 function createModal(movie) {
   var date, poster, overview;
 

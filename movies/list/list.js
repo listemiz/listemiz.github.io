@@ -133,14 +133,6 @@ function showWatchlist() {
       });
     });
   });
-
-  // gapi.client.sheets.spreadsheets.values.get({
-  //   spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-  //   range: 'Watchlist'
-  // }).then((response) => {
-  //   movies = response.result.values;
-  //   showMovies(movies);
-  // });
 }
 
 function showMovies(filter='Basak or Doga') {
