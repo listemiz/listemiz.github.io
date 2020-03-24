@@ -23,7 +23,8 @@ var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
 
 var deletedRows = [];
 
-var movies;
+var movies, moviesInit;
+var columns = {};
 
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
@@ -85,7 +86,12 @@ function showWatchlist() {
     watchlistSize = wl.values.length - 1;
     // console.log(watchlist); 
     // console.log(watchlistSize);
-    movies = wl.values;
+    moviesInit = wl.values;
+    header = moviesInit[0]
+    for (i = 0; i < header.length; i++) {
+      columns[header[i]] = i;
+    }
+    movies = moviesInit.slice(1);
 
     ratings = {}
     for (i = 1; i < rt.values.length; i++) {
@@ -138,13 +144,7 @@ function showWatchlist() {
 }
 
 function showMovies(filter='Basak or Doga') {
-  var columns = {}
-  header = movies[0]
-  for (i = 0; i < header.length; i++) {
-    columns[header[i]] = i;
-  }
-
-  for (i = 1; i < movies.length; i++) {
+  for (i = 0; i < movies.length; i++) {
     row = movies[i];
 
     if (filter == 'Basak or Doga' || (filter == 'Basak' && row[columns['Basak Wants']] == 'TRUE') || (filter == 'Doga' && row[columns['Doga Wants']] == 'TRUE') || (filter == 'Basak and Doga' && row[columns['Basak Wants']] == 'TRUE' && row[columns['Doga Wants']] == 'TRUE')) {
@@ -289,6 +289,34 @@ function updateRating(movieId, currentRating) {
 
 function filterChanged() {
   filter = document.getElementById('filter').value;
+  cardHolder.innerHTML = "";
+  showMovies(filter);
+}
+
+function reSort() {
+  desc = document.getElementById('desc').checked;
+  order = document.getElementById('sort').value;
+  filter = document.getElementById('filter').value;
+
+  if (desc) {
+    if (order == 'Release Date') {
+      movies.sort((a, b) => b[columns[order]].localeCompare(a[columns[order]]));
+    } else if (order == 'Date Added') {
+      movies = moviesInit.slice(1);
+      movies.reverse();
+    } else {
+      movies.sort((a, b) => b[columns[order]] - a[columns[order]]);
+    }
+  } else {
+    if (order == 'Release Date') {
+      movies.sort((a, b) => a[columns[order]].localeCompare(b[columns[order]]));
+    } else if (order == 'Date Added') {
+      movies = moviesInit.slice(1);
+    } else {
+      movies.sort((a, b) => a[columns[order]] - b[columns[order]]);
+    }
+  }
+
   cardHolder.innerHTML = "";
   showMovies(filter);
 }
