@@ -120,6 +120,8 @@ function showWatchlist() {
               for (i = 0; i < result.genres.length; i++) {
                 genres[result.genres[i].id] = result.genres[i].name;
               }
+              $('.open-modal').click(toggleModalClasses);
+              $('.close-modal').click(toggleModalClasses);
               showMovies();
             },
             error: function (result) {
@@ -135,7 +137,7 @@ function showWatchlist() {
   });
 }
 
-function showMovies(filter='Basak or Doga') {
+function showMovies(filter = 'Basak or Doga') {
   for (i = 0; i < movies.length; i++) {
     row = movies[i];
 
@@ -152,7 +154,7 @@ function showMovies(filter='Basak or Doga') {
       column.innerHTML = `<div class="card">
                             <div class="card-image">
                               <figure class="image is-2by3">
-                                <img src="${poster}">
+                                <a onclick="createModal(${i})"><img src="${poster}"></a>
                               </figure>
                             </div>
                             <div class="card-content">      
@@ -311,4 +313,54 @@ function reSort() {
 
   cardHolder.innerHTML = "";
   showMovies(filter);
+}
+
+function toggleModalClasses(event) {
+  var modalId = event.currentTarget.dataset.modalId;
+  var modal = $(modalId);
+  modal.toggleClass('is-active');
+  $('html').toggleClass('is-clipped');
+}
+
+function createModal(movieRow) {
+  movie = movies[movieRow];
+  var modal = $('#my-modal');
+  var date, poster;
+
+  if (movie[columns['Release Date']] != "") {
+    date = `(${movie[columns['Release Date']].substring(0,4)})`
+  } else {
+    date = '(????)'
+  }
+
+  if (movie[columns['Poster Path']] != "") {
+    poster = imageBase + posterSizes[1] + movie[columns['Poster Path']];
+  } else {
+    poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
+  }
+
+  var overview_elem = document.getElementById('movie-overview')
+  var poster_elem = document.getElementById('poster');
+  var title = document.getElementById('title');
+  var genre_elem = document.getElementById('genre');
+  var language_elem = document.getElementById('language');
+
+  title.innerText = `${movie[columns['Title']]} ${date}`
+  overview_elem.innerText = movie[columns['Overview']];
+  poster_elem.src = poster;
+
+  if (movie[columns['Genres']] == "") {
+    genre_elem.innerText = 'Unknown Genre';
+  } else {
+    genre_elem.innerText = movie[columns['Genres']];
+  }
+
+  if (movie.language == "") {
+    language_elem.innerText = '??';
+  } else {
+    language_elem.innerText = movie[columns['Language']].toUpperCase();
+  }
+
+  modal.toggleClass('is-active');
+  $('html').toggleClass('is-clipped');
 }
