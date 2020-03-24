@@ -45,7 +45,7 @@ function updateSigninStatus(isSignedIn) {
   } else {
     googleButton.innerHTML = '<i class="fab fa-google"></i>';
     if (welcomeText != null) {
-      welcomeText.innerHTML = 'First, sign in with Google!';
+      welcomeText.innerHTML = 'First, sign in with <a onclick="handleGoogle()">Google</a>!';
     }
   }
 }
