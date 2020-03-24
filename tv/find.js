@@ -110,7 +110,19 @@ function initSelector() {
                 for (i = 0; i < result.genres.length; i++) {
                   genres[result.genres[i].id] = result.genres[i].name;
                 }
-                initializeSelector();
+                $.ajax({
+                  type: "GET",
+                  url: tmdbBase + "genre/movie/list?api_key=" + tmdbKey,
+                  success: function (result) {
+                    for (i = 0; i < result.genres.length; i++) {
+                      genres[result.genres[i].id] = result.genres[i].name;
+                    }
+                    initializeSelector();
+                  },
+                  error: function (result) {
+                    console.log(result)
+                  }
+                });
               },
               error: function (result) {
                 console.log(result)
@@ -143,6 +155,7 @@ function initializeSelector() {
         };
       },
       processResults: function (data) {
+        console.log(data.results)
         return {
           'results': data.results.map(function (res) {
             return {

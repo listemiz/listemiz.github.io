@@ -120,9 +120,21 @@ function showWatchlist() {
               for (i = 0; i < result.genres.length; i++) {
                 genres[result.genres[i].id] = result.genres[i].name;
               }
-              $('.open-modal').click(toggleModalClasses);
-              $('.close-modal').click(toggleModalClasses);
-              showMovies();
+              $.ajax({
+                type: "GET",
+                url: tmdbBase + "genre/movie/list?api_key=" + tmdbKey,
+                success: function (result) {
+                  for (i = 0; i < result.genres.length; i++) {
+                    genres[result.genres[i].id] = result.genres[i].name;
+                  }
+                  $('.open-modal').click(toggleModalClasses);
+                  $('.close-modal').click(toggleModalClasses);
+                  showMovies();
+                },
+                error: function (result) {
+                  console.log(result)
+                }
+              });
             },
             error: function (result) {
               console.log(result)
