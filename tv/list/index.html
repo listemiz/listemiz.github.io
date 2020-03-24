@@ -7,24 +7,20 @@
 
   <title>Our TV Shows</title>
 
-  <link rel='icon' href='../favicon.ico' type='image/x-icon'>
+  <link rel='icon' href='../../favicon.ico' type='image/x-icon'>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-  <link rel="stylesheet" href="../navbar.css">
+  <link rel="stylesheet" href="../../navbar.css">
   <link rel="stylesheet" href="../../star-rating-svg.css">
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
-  <script src='../maximizeHeight.js'></script>
   <script src="../../jquery.star-rating-svg.js"></script>
 </head>
 
 <body class="has-navbar-fixed-top">
   <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-      <a class="navbar-item" href="../">
+      <a class="navbar-item" href="../../">
         <span class="fa-stack ">
           <span class="icon"><i class="fas fa-tv fa-stack-2x"></i></span>
           <span class="icon"><i class="fas fa-heart fa-xs fa-stack-1x"></i></span>
@@ -34,11 +30,11 @@
 
     <div id="navbarBasicExample" class="navbar-menu">
       <div class="navbar-start">
-        <a class="navbar-item has-text-grey-light" href='../movies'>
+        <a class="navbar-item has-text-grey-light" href='../../movies/'>
           Movies
         </a>
 
-        <a class="navbar-item has-text-black" href='./'>
+        <a class="navbar-item has-text-grey-black" href='./'>
           TV Shows
         </a>
       </div>
@@ -54,15 +50,15 @@
   <div class="container">
     <div class="tabs is-centered is-fullwidth">
       <ul>
-        <li class="is-active"><a href='./'>
+        <li><a href='../'>
             <span class="icon is-small"><i class="fas fa-search fa-sm" aria-hidden="true"></i></span>
             <span>Find</span>
           </a></li>
-        <li><a href='./rate'>
+        <li><a href='../rate'>
             <span class="icon is-small"><i class="fas fa-star-half-alt fa-sm" aria-hidden="true"></i></span>
             <span>Rate</span>
           </a></li>
-        <li><a href='./list'>
+        <li class="is-active"><a href='./'>
             <span class="icon is-small"><i class="fas fa-list fa-sm" aria-hidden="true"></i></span>
             <span>List</span>
           </a></li>
@@ -71,12 +67,41 @@
   </div>
 
   <div class="section">
-    <div class="container has-text-centered">
-      <div class="columns">
-        <div class="column">
-          <select class="select" style="width: 100%" id="select-tv" size="10"></select>
+    <div class="container">
+      <nav class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <label for='filter' style='padding-right: 10px;'>Wanted by:</label>
+            <div class="select is-rounded">
+              <select id='filter' onchange="filterChanged();">
+                <option>Basak or Doga</option>
+                <option>Basak</option>
+                <option>Doga</option>
+                <option>Basak and Doga</option>
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
+        <div class="level-right">
+          <div class="level-item">
+            <label for='sort' style='padding-right: 10px;'>Sort by:</label>
+            <div class="select is-rounded">
+              <select id='sort' onchange="reSort();">
+                <option>Date Added</option>
+                <option>Release Date</option>
+                <option>Popularity</option>
+              </select>
+            </div>
+          </div>
+          <div class="level-item">
+            <label class="checkbox">
+              <input type="checkbox" id="desc" onchange="reSort();">
+              Descending
+            </label>
+          </div>
+        </div>
+      </nav>
+      <div class="columns is-mobile is-multiline" id="movies"></div>
     </div>
   </div>
 
@@ -115,26 +140,10 @@
           </div>
         </article>
       </section>
-      <footer class="modal-card-foot">
-        <nav class="level is-mobile" style="width: 100%">
-          <div class="level-left">
-            <div class="level-item">
-              <button class="button" id="add-to-list">Add to List</button>
-            </div>
-          </div>
-          <div class="level-right">
-            <div class="level-item">
-              Your rating: 
-            </div>
-            <div class="level-item" id="modal-footer">
-            </div>
-          </div>
-        </nav>
-      </footer>
     </div>
   </div>
 
-  <script src="find.js"></script>
+  <script src="list.js"></script>
   <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()"
     onreadystatechange="if (this.readyState === 'complete') this.onload()">
   </script>

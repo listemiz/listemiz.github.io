@@ -68,7 +68,7 @@ function handleGoogle() {
 
 function showWatchlist() {
   gapi.client.sheets.spreadsheets.values.batchGet({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
     ranges: ['Watchlist', 'Ratings']
   }).then((response) => {
     wl = response.result.valueRanges[0]
@@ -115,7 +115,7 @@ function showWatchlist() {
 
           $.ajax({
             type: "GET",
-            url: tmdbBase + "genre/movie/list?api_key=" + tmdbKey,
+            url: tmdbBase + "genre/tv/list?api_key=" + tmdbKey,
             success: function (result) {
               for (i = 0; i < result.genres.length; i++) {
                 genres[result.genres[i].id] = result.genres[i].name;
@@ -194,7 +194,7 @@ function showMovies(filter = 'Basak or Doga') {
         deletedRows.push(initialRow);
 
         gapi.client.sheets.spreadsheets.batchUpdate({
-          spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+          spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
           resource: {
             requests: [{
               "deleteDimension": {
@@ -231,7 +231,7 @@ function appendToRatings(movie, rating) {
   }
 
   gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
     range: 'Ratings',
     valueInputOption: 'USER_ENTERED',
     resource: {
@@ -249,7 +249,7 @@ function updateList(movieId) {
   row = watchlist[movieId]['row'] + 1;
   column = currentUser.getGivenName() == 'Doga' ? 'I' : 'J';
   gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
     range: `Watchlist!${column}${row}`,
     valueInputOption: 'USER_ENTERED',
     resource: {
@@ -267,7 +267,7 @@ function updateRating(movieId, currentRating) {
   row = ratings[movieId]['row'] + 1;
   column = currentUser.getGivenName() == 'Doga' ? 'I' : 'J';
   gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
     range: `Ratings!${column}${row}`,
     valueInputOption: 'USER_ENTERED',
     resource: {

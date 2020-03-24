@@ -62,7 +62,7 @@ function handleGoogle() {
 
 function initSelector() {
   gapi.client.sheets.spreadsheets.values.batchGet({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
     ranges: ['Watchlist', 'Ratings']
   }).then((response) => {
     wl = response.result.valueRanges[0]
@@ -105,7 +105,7 @@ function initSelector() {
 
             $.ajax({
               type: "GET",
-              url: tmdbBase + "genre/movie/list?api_key=" + tmdbKey,
+              url: tmdbBase + "genre/tv/list?api_key=" + tmdbKey,
               success: function (result) {
                 for (i = 0; i < result.genres.length; i++) {
                   genres[result.genres[i].id] = result.genres[i].name;
@@ -124,18 +124,18 @@ function initSelector() {
       });
     });
 
-    $('#select-movie').select2().maximizeSelect2Height();
+    $('#select-tv').select2().maximizeSelect2Height();
   });
 }
 
 function initializeSelector() {
-  $('#select-movie').select2({
+  $('#select-tv').select2({
     ajax: {
-      url: tmdbBase + 'search/movie',
+      url: tmdbBase + 'search/tv',
       dataType: 'json',
       delay: 250,
       minimumInputLength: 3,
-      placeholder: "Type a movie title!",
+      placeholder: "Type a TV Show title!",
       data: function (params) {
         return {
           api_key: tmdbKey,
@@ -147,10 +147,10 @@ function initializeSelector() {
           'results': data.results.map(function (res) {
             return {
               'id': res.id,
-              'text': res.title,
+              'text': res.name,
               'genre_ids': res.genre_ids,
               'popularity': res.popularity,
-              'release_date': res.release_date,
+              'release_date': res.first_air_date,
               'language': res.original_language,
               'overview': res.overview,
               'poster_path': res.poster_path
@@ -163,7 +163,7 @@ function initializeSelector() {
     templateSelection: formatMovieSelection
   });
 
-  $('#select-movie').on('select2:select', function (e) {
+  $('#select-tv').on('select2:select', function (e) {
     var movie = e.params.data;
     createModal(movie);
   });
@@ -232,7 +232,7 @@ function formatMovie(movie) {
 }
 
 function formatMovieSelection(movie) {
-  return "Type a movie name!"
+  return "Type a TV Show name!"
 }
 
 function toggleModalClasses(event) {
@@ -362,7 +362,6 @@ function createModal(movie) {
             }
           }
         }
-        console.log(ratings);
         modal.toggleClass('is-active');
         $('html').toggleClass('is-clipped');
       }
@@ -391,7 +390,7 @@ function appendToList(movie) {
   }
 
   gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
     range: 'Watchlist',
     valueInputOption: 'USER_ENTERED',
     resource: {
@@ -434,7 +433,7 @@ function appendToRatings(movie, rating) {
   }
 
   gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
     range: 'Ratings',
     valueInputOption: 'USER_ENTERED',
     resource: {
@@ -463,7 +462,7 @@ function updateList(movie) {
   row = watchlist[movie.id]['row'] + 1;
   col = currentUser.getGivenName() == 'Doga' ? 'I' : 'J';
   gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
     range: `Watchlist!${col}${row}`,
     valueInputOption: 'USER_ENTERED',
     resource: {
@@ -481,7 +480,7 @@ function updateRating(movie, currentRating) {
   row = ratings[movie.id]['row'] + 1;
   col = currentUser.getGivenName() == 'Doga' ? 'I' : 'J';
   gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
     range: `Ratings!${col}${row}`,
     valueInputOption: 'USER_ENTERED',
     resource: {

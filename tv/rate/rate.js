@@ -9,22 +9,20 @@ var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"
 var SCOPES = "https://www.googleapis.com/auth/spreadsheets";
 
 var googleButton = document.getElementById('google');
+
 var cardHolder = document.getElementById('movies');
-
-var watchlist, watchlistSize;
-var ratings, ratingsSize;
-
-var imageBase;
-var posterSizes;
-var genres;
+var movies;
+var moviesInit;
+var ids = [];
+var ratings = {};
+var columns = {}
 
 var tmdbBase = 'https://api.themoviedb.org/3/';
 var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
 
-var deletedRows = [];
-
-var movies, moviesInit;
-var columns = {};
+var imageBase;
+var posterSizes;
+var genres;
 
 function handleClientLoad() {
   gapi.load('client:auth2', initClient);
@@ -52,7 +50,7 @@ function updateSigninStatus(isSignedIn) {
     currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
     img = currentUser.getGivenName() == 'Doga' ? '../../doga.jpeg' : '../../basak.jpeg';
     googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'
-    showWatchlist();
+    showRatelist();
   } else {
     googleButton.innerHTML = '<i class="fab fa-google"></i>';
   }
@@ -66,43 +64,17 @@ function handleGoogle() {
   }
 }
 
-function showWatchlist() {
-  gapi.client.sheets.spreadsheets.values.batchGet({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    ranges: ['Watchlist', 'Ratings']
+function showRatelist() {
+  gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
+    range: 'Ratings'
   }).then((response) => {
-    wl = response.result.valueRanges[0]
-    rt = response.result.valueRanges[1]
-
-    watchlist = {}
-    for (i = 1; i < wl.values.length; i++) {
-      watchlist[wl.values[i][0]] = {
-        'Doga': wl.values[i][8],
-        'Basak': wl.values[i][9],
-        'row': i,
-        'values': wl.values[i].slice(0, 8)
-      }
-    }
-    watchlistSize = wl.values.length - 1;
-    // console.log(watchlist); 
-    // console.log(watchlistSize);
-    moviesInit = wl.values;
+    moviesInit = response.result.values;
     header = moviesInit[0]
     for (i = 0; i < header.length; i++) {
       columns[header[i]] = i;
     }
     movies = moviesInit.slice(1);
-
-    ratings = {}
-    for (i = 1; i < rt.values.length; i++) {
-      ratings[rt.values[i][0]] = {
-        'Doga': rt.values[i][8],
-        'Basak': rt.values[i][9],
-        'row': i
-      }
-    }
-    ratingsSize = rt.values.length - 1;
-
     $(document).ready(function () {
       $.ajax({
         type: "GET",
@@ -115,7 +87,7 @@ function showWatchlist() {
 
           $.ajax({
             type: "GET",
-            url: tmdbBase + "genre/movie/list?api_key=" + tmdbKey,
+            url: tmdbBase + "genre/tv/list?api_key=" + tmdbKey,
             success: function (result) {
               for (i = 0; i < result.genres.length; i++) {
                 genres[result.genres[i].id] = result.genres[i].name;
@@ -140,8 +112,13 @@ function showWatchlist() {
 function showMovies(filter = 'Basak or Doga') {
   for (i = 0; i < movies.length; i++) {
     row = movies[i];
+    ids.push(row[columns['ID']]);
+    if (filter == 'Basak or Doga' || (filter == 'Basak' && row[columns['Basak Rating']] != '') || (filter == 'Doga' && row[columns['Doga Rating']] != '') || (filter == 'Basak and Doga' && row[columns['Basak Rating']] != '' && row[columns['Doga Rating']] != '')) {
+      ratings[row[columns['ID']]] = {
+        'Doga': row[columns['Doga Rating']],
+        'Basak': row[columns['Basak Rating']]
+      }
 
-    if (filter == 'Basak or Doga' || (filter == 'Basak' && row[columns['Basak Wants']] == 'TRUE') || (filter == 'Doga' && row[columns['Doga Wants']] == 'TRUE') || (filter == 'Basak and Doga' && row[columns['Basak Wants']] == 'TRUE' && row[columns['Doga Wants']] == 'TRUE')) {
       if (row[columns['Poster Path']] != "") {
         poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
       } else {
@@ -158,127 +135,42 @@ function showMovies(filter = 'Basak or Doga') {
                               </figure>
                             </div>
                             <div class="card-content">      
-                              <div class="content has-text-centered">
-                                <div class="my-rating"></div>
-                              </div>
+                              <nav class="level">
+                                <div class="level-left">
+                                  <div class="level-item">
+                                    <figure class="image is-32x32">
+                                      <img class="is-rounded" src="../../doga.jpeg">
+                                    </figure>
+                                    <div style="padding-left: 5px;">
+                                      ${rating(row[columns['Doga Rating']])}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="level-right">
+                                  <div class="level-item">                                
+                                    <figure class="image is-32x32">
+                                      <img class="is-rounded" src="../../basak.jpeg">
+                                    </figure>
+                                    <div style="padding-left: 5px;">
+                                      ${rating(row[columns['Basak Rating']])}
+                                    </div>
+                                  </div>
+                                </div>
+                              </nav>
                             </div>
                           </div>`;
       cardHolder.appendChild(column);
     }
   }
-
-  $(".my-rating").starRating({
-    starSize: 24,
-    callback: function (currentRating, $el) {
-      col = $el[0].parentNode.parentNode.parentNode.parentNode;
-
-      if (col.id in ratings) {
-        updateRating(col.id, currentRating);
-      } else {
-        appendToRatings(watchlist[col.id]['values'], currentRating);
-      }
-
-      if (watchlist[col.id][currentUser.getGivenName() == 'Doga' ? 'Basak' : 'Doga'] == 'TRUE') {
-        updateList(col.id);
-      } else {
-        initialRow = watchlist[col.id]['row'];
-        console.log(initialRow);
-
-        offset = 0;
-        for (i = 0; i < deletedRows.length; i++) {
-          if (deletedRows[i] < initialRow) {
-            offset++;
-          }
-        }
-
-        deletedRows.push(initialRow);
-
-        gapi.client.sheets.spreadsheets.batchUpdate({
-          spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-          resource: {
-            requests: [{
-              "deleteDimension": {
-                "range": {
-                  "dimension": "ROWS",
-                  "startIndex": initialRow - offset,
-                  "endIndex": initialRow - offset + 1
-                }
-              }
-            }]
-          }
-        }).then((response) => {
-          console.log(response);
-        });
-      }
-      col.parentNode.removeChild(col);
-    }
-  });
 }
 
-function appendToRatings(movie, rating) {
-  var today = new Date();
-  var dd = String(today.getDate()).padStart(2, '0');
-  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-  var yyyy = today.getFullYear();
-
-  today = yyyy + '-' + mm + '-' + dd;
-
-  var ratings;
-  if (currentUser.getGivenName() == 'Doga') {
-    ratings = [rating, "", today];
-  } else {
-    ratings = ["", rating, today];
+function rating(x) {
+  if (x == "") {
+    x = '??';
+  } else if (x.length == 1) {
+    x += '.0';
   }
-
-  gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    range: 'Ratings',
-    valueInputOption: 'USER_ENTERED',
-    resource: {
-      values: [
-        movie.concat(ratings)
-      ]
-    }
-  }).then((response) => {
-    var result = response.result;
-    console.log(`${result.updates.updatedCells} cells appended.`)
-  });
-}
-
-function updateList(movieId) {
-  row = watchlist[movieId]['row'] + 1;
-  column = currentUser.getGivenName() == 'Doga' ? 'I' : 'J';
-  gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    range: `Watchlist!${column}${row}`,
-    valueInputOption: 'USER_ENTERED',
-    resource: {
-      values: [
-        ["FALSE"]
-      ]
-    }
-  }).then((response) => {
-    var result = response.result;
-    console.log(`${result.updatedCells} cells updated.`);
-  });
-}
-
-function updateRating(movieId, currentRating) {
-  row = ratings[movieId]['row'] + 1;
-  column = currentUser.getGivenName() == 'Doga' ? 'I' : 'J';
-  gapi.client.sheets.spreadsheets.values.update({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    range: `Ratings!${column}${row}`,
-    valueInputOption: 'USER_ENTERED',
-    resource: {
-      values: [
-        ["" + currentRating]
-      ]
-    }
-  }).then((response) => {
-    var result = response.result;
-    console.log(`${result.updatedCells} cells updated.`);
-  });
+  return x;
 }
 
 function filterChanged() {
@@ -298,6 +190,8 @@ function reSort() {
     } else if (order == 'Date Added') {
       movies = moviesInit.slice(1);
       movies.reverse();
+    } else if (order == 'Doga + Basak') {
+      movies.sort((a, b) => Number(b[columns['Doga Rating']]) + Number(b[columns['Basak Rating']]) - Number(a[columns['Doga Rating']]) - Number(a[columns['Basak Rating']]));
     } else {
       movies.sort((a, b) => b[columns[order]] - a[columns[order]]);
     }
@@ -306,6 +200,8 @@ function reSort() {
       movies.sort((a, b) => a[columns[order]].localeCompare(b[columns[order]]));
     } else if (order == 'Date Added') {
       movies = moviesInit.slice(1);
+    } else if (order == 'Doga + Basak') {
+      movies.sort((a, b) => Number(a[columns['Doga Rating']]) + Number(a[columns['Basak Rating']]) - Number(b[columns['Doga Rating']]) - Number(b[columns['Basak Rating']]));
     } else {
       movies.sort((a, b) => a[columns[order]] - b[columns[order]]);
     }
