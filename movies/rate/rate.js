@@ -207,19 +207,50 @@ function filterChanged() {
   showMovies(filter);
 }
 
-function sortChanged() {
+// function sortChanged() {
+//   order = document.getElementById('sort').value;
+//   filter = document.getElementById('filter').value;
+//   if (order == 'Release Date') {
+//     movies.sort((a, b) => a[columns[order]].localeCompare(b[columns[order]]));
+//   } else if (order == 'Date Added') {
+//     movies = moviesInit.slice(1);
+//   } else if (order == 'Doga + Basak') {
+//     movies.sort((a, b) => Number(a[columns['Doga Rating']]) + Number(a[columns['Basak Rating']]) - Number(b[columns['Doga Rating']]) - Number(b[columns['Basak Rating']]));
+//   } else {
+//     movies.sort((a, b) => a[columns[order]] - b[columns[order]]);
+//   }
+//   cardHolder.innerHTML = "";
+//   showMovies(filter);
+// }
+
+function reSort() {
+  desc = document.getElementById('desc').checked;
   order = document.getElementById('sort').value;
   filter = document.getElementById('filter').value;
-  if (order == 'Release Date') {
-    movies.sort((a, b) => a[columns[order]].localeCompare(b[columns[order]]));
-  } else if (order == 'Date Added') {
-    movies = moviesInit.slice(1);
-  } else if (order == 'Doga + Basak') {
-    console.log('eyy')
-    movies.sort((a, b) => Number(a[columns['Doga Rating']]) + Number(a[columns['Basak Rating']]) - Number(b[columns['Doga Rating']]) - Number(b[columns['Basak Rating']]));
+
+  if (desc) {
+    if (order == 'Release Date') {
+      movies.sort((a, b) => b[columns[order]].localeCompare(a[columns[order]]));
+    } else if (order == 'Date Added') {
+      movies = moviesInit.slice(1);
+      movies.reverse();
+    } else if (order == 'Doga + Basak') {
+      movies.sort((a, b) => Number(b[columns['Doga Rating']]) + Number(b[columns['Basak Rating']]) - Number(a[columns['Doga Rating']]) - Number(a[columns['Basak Rating']]));
+    } else {
+      movies.sort((a, b) => b[columns[order]] - a[columns[order]]);
+    }
   } else {
-    movies.sort((a, b) => a[columns[order]] - b[columns[order]]);
+    if (order == 'Release Date') {
+      movies.sort((a, b) => a[columns[order]].localeCompare(b[columns[order]]));
+    } else if (order == 'Date Added') {
+      movies = moviesInit.slice(1);
+    } else if (order == 'Doga + Basak') {
+      movies.sort((a, b) => Number(a[columns['Doga Rating']]) + Number(a[columns['Basak Rating']]) - Number(b[columns['Doga Rating']]) - Number(b[columns['Basak Rating']]));
+    } else {
+      movies.sort((a, b) => a[columns[order]] - b[columns[order]]);
+    }
   }
+
   cardHolder.innerHTML = "";
   showMovies(filter);
 }

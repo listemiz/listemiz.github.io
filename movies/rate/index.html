@@ -86,7 +86,7 @@
           <div class="level-item">
             <label for='sort' style='padding-right: 10px;'>Sort by:</label>
             <div class="select is-rounded">
-              <select id='sort' onchange="sortChanged();">
+              <select id='sort' onchange="reSort();">
                 <option>Date Added</option>
                 <option>Release Date</option>
                 <option>Popularity</option>
@@ -95,6 +95,12 @@
                 <option>Doga + Basak</option>
               </select>
             </div>
+          </div>
+          <div class="level-item">
+            <label class="checkbox">
+              <input type="checkbox" id="desc" onchange="reSort();">
+              Descending
+            </label>
           </div>
         </div>
       </nav>
