@@ -16,6 +16,7 @@ var moviesInit;
 var ids = [];
 var ratings = {};
 var columns = {}
+var sheetRows = {};
 
 var tmdbBase = 'https://api.themoviedb.org/3/';
 var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
@@ -70,11 +71,18 @@ function showRatelist() {
     range: 'Ratings'
   }).then((response) => {
     moviesInit = response.result.values;
+
     header = moviesInit[0]
     for (i = 0; i < header.length; i++) {
       columns[header[i]] = i;
     }
     movies = moviesInit.slice(1);
+
+    for (i = 0; i < movies.length; i++) {
+      sheetRows[movies[i][columns['ID']]] = i+2
+    }
+    console.log(sheetRows);
+
     $(document).ready(function () {
       $.ajax({
         type: "GET",
@@ -255,6 +263,84 @@ function createModal(movieRow) {
     language_elem.innerText = '??';
   } else {
     language_elem.innerText = movie[columns['Language']].toUpperCase();
+  }
+
+  oldDoga = document.getElementById('old-doga');
+  if (oldDoga != null) {
+    oldDoga.parentNode.removeChild(oldDoga);
+  }
+  dogaRating = document.createElement('div');
+  dogaRating.id = 'old-doga';
+  document.getElementById('doga-rating').appendChild(dogaRating);
+
+  oldBasak = document.getElementById('old-basak');
+  if (oldBasak != null) {
+    oldBasak.parentNode.removeChild(oldBasak);
+  }
+  basakRating = document.createElement('div');
+  basakRating.id = 'old-basak';
+  document.getElementById('basak-rating').appendChild(basakRating);
+
+  if (currentUser.getGivenName() == 'Doga') {
+    $('#old-doga').starRating({
+      starSize: 25,
+      initialRating: movie[columns['Doga Rating']],
+      callback: function (currentRating, $el) {
+        movies[movieRow][columns['Doga Rating']] = '' + currentRating;
+        reSort();
+        modal.toggleClass('is-active');
+        $('html').toggleClass('is-clipped');
+
+        gapi.client.sheets.spreadsheets.values.update({
+          spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
+          range: `Ratings!I${sheetRows[movie[columns['ID']]]}`,
+          valueInputOption: 'USER_ENTERED',
+          resource: {
+            values: [
+              ["" + currentRating]
+            ]
+          }
+        }).then((response) => {
+          var result = response.result;
+          console.log(`${result.updatedCells} cells updated.`);
+        });
+      }
+    })
+    $('#old-basak').starRating({
+      starSize: 25,
+      initialRating: movie[columns['Basak Rating']],
+      readOnly: true
+    })
+  } else {
+    $('#old-doga').starRating({
+      starSize: 25,
+      initialRating: movie[columns['Doga Rating']],
+      readOnly: true
+    })
+    $('#old-basak').starRating({
+      starSize: 25,
+      initialRating: movie[columns['Basak Rating']],
+      callback: function (currentRating, $el) {
+        movies[movieRow][columns['Basak Rating']] = '' + currentRating;
+        reSort();
+        modal.toggleClass('is-active');
+        $('html').toggleClass('is-clipped');
+
+        gapi.client.sheets.spreadsheets.values.update({
+          spreadsheetId: '1N9V3e9ZvrBHUrxTn82uAQKXoxqwYRnvnZ5n2x0UHTnw',
+          range: `Ratings!J${sheetRows[movie[columns['ID']]]}`,
+          valueInputOption: 'USER_ENTERED',
+          resource: {
+            values: [
+              ["" + currentRating]
+            ]
+          }
+        }).then((response) => {
+          var result = response.result;
+          console.log(`${result.updatedCells} cells updated.`);
+        });
+      }
+    })
   }
 
   modal.toggleClass('is-active');
