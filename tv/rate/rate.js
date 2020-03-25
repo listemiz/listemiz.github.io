@@ -81,7 +81,6 @@ function showRatelist() {
     for (i = 0; i < movies.length; i++) {
       sheetRows[movies[i][columns['ID']]] = i+2
     }
-    console.log(sheetRows);
 
     $(document).ready(function () {
       $.ajax({

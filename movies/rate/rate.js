@@ -16,6 +16,7 @@ var moviesInit;
 var ids = [];
 var ratings = {};
 var columns = {}
+var sheetRows = {};
 
 var tmdbBase = 'https://api.themoviedb.org/3/';
 var tmdbKey = '09bd1912d223a0bbe8c486692bd70a9d';
@@ -70,11 +71,17 @@ function showRatelist() {
     range: 'Ratings'
   }).then((response) => {
     moviesInit = response.result.values;
+
     header = moviesInit[0]
     for (i = 0; i < header.length; i++) {
       columns[header[i]] = i;
     }
     movies = moviesInit.slice(1);
+
+    for (i = 0; i < movies.length; i++) {
+      sheetRows[movies[i][columns['ID']]] = i+2
+    }
+
     $(document).ready(function () {
       $.ajax({
         type: "GET",
@@ -173,36 +180,6 @@ function rating(x) {
   return x;
 }
 
-function appendToRatings(movie, rating) {
-  var today = new Date();
-  var dd = String(today.getDate()).padStart(2, '0');
-  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-  var yyyy = today.getFullYear();
-
-  today = yyyy + '-' + mm + '-' + dd;
-
-  var ratings;
-  if (currentUser.getGivenName() == 'Doga') {
-    ratings = [today, rating, ""];
-  } else {
-    ratings = [today, "", rating];
-  }
-
-  gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
-    range: 'Ratings',
-    valueInputOption: 'USER_ENTERED',
-    resource: {
-      values: [
-        movie.concat(ratings)
-      ]
-    }
-  }).then((response) => {
-    var result = response.result;
-    console.log(`${result.updates.updatedCells} cells appended.`)
-  });
-}
-
 function filterChanged() {
   filter = document.getElementById('filter').value;
   cardHolder.innerHTML = "";
@@ -287,55 +264,83 @@ function createModal(movieRow) {
     language_elem.innerText = movie[columns['Language']].toUpperCase();
   }
 
-  // oldr = document.getElementById('old-rating');
-  // if (oldr != null) {
-  //   oldr.parentNode.removeChild(oldr);
-  // }
+  oldDoga = document.getElementById('old-doga');
+  if (oldDoga != null) {
+    oldDoga.parentNode.removeChild(oldDoga);
+  }
+  dogaRating = document.createElement('div');
+  dogaRating.id = 'old-doga';
+  document.getElementById('doga-rating').appendChild(dogaRating);
 
-  // rating = document.createElement('div');
-  // rating.id = 'old-rating';
-  // document.getElementById('modal-footer').appendChild(rating);
+  oldBasak = document.getElementById('old-basak');
+  if (oldBasak != null) {
+    oldBasak.parentNode.removeChild(oldBasak);
+  }
+  basakRating = document.createElement('div');
+  basakRating.id = 'old-basak';
+  document.getElementById('basak-rating').appendChild(basakRating);
 
-  // if (movie.id in ratings && ratings[movie.id][currentUser.getGivenName() == 'Doga' ? 'Doga' : 'Basak'] != "") {
-  //   addToList.disabled = true;
-  //   addToList.innerText = 'Watched'
-  //   curRatings = ratings[movie.id]
-  //   yourRating = currentUser.getGivenName() == 'Doga' ? curRatings['Doga'] : curRatings['Basak'];
-  //   $('#old-rating').starRating({
-  //     starSize: 25,
-  //     initialRating: yourRating,
-  //     readOnly: true
-  //   })
-  // } else {
-  //   $('#old-rating').starRating({
-  //     starSize: 25,
-  //     callback: function (currentRating, $el) {
-  //       if (movie.id in ratings) {
-  //         ratings[movie.id][currentUser.getGivenName() == 'Doga' ? 'Doga' : 'Basak'] = "" + currentRating;
-  //         updateRating(movie, currentRating);
-  //       } else {
-  //         appendToRatings(movie, currentRating);
-  //         ratingsSize++;
-  //         if (currentUser.getGivenName() == 'Doga') {
-  //           ratings[movie.id] = {
-  //             'Doga': '' + currentRating,
-  //             'Basak': '',
-  //             'row': ratingsSize
-  //           }
-  //         } else {
-  //           ratings[movie.id] = {
-  //             'Doga': '',
-  //             'Basak': '' + currentRating,
-  //             'row': ratingsSize
-  //           }
-  //         }
-  //       }
-  //       console.log(ratings);
-  //       modal.toggleClass('is-active');
-  //       $('html').toggleClass('is-clipped');
-  //     }
-  //   })
-  // }
+  if (currentUser.getGivenName() == 'Doga') {
+    $('#old-doga').starRating({
+      starSize: 25,
+      initialRating: movie[columns['Doga Rating']],
+      callback: function (currentRating, $el) {
+        movies[movieRow][columns['Doga Rating']] = '' + currentRating;
+        reSort();
+        modal.toggleClass('is-active');
+        $('html').toggleClass('is-clipped');
+
+        gapi.client.sheets.spreadsheets.values.update({
+          spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+          range: `Ratings!I${sheetRows[movie[columns['ID']]]}`,
+          valueInputOption: 'USER_ENTERED',
+          resource: {
+            values: [
+              ["" + currentRating]
+            ]
+          }
+        }).then((response) => {
+          var result = response.result;
+          console.log(`${result.updatedCells} cells updated.`);
+        });
+      }
+    })
+    $('#old-basak').starRating({
+      starSize: 25,
+      initialRating: movie[columns['Basak Rating']],
+      readOnly: true
+    })
+  } else {
+    $('#old-doga').starRating({
+      starSize: 25,
+      initialRating: movie[columns['Doga Rating']],
+      readOnly: true
+    })
+    $('#old-basak').starRating({
+      starSize: 25,
+      initialRating: movie[columns['Basak Rating']],
+      callback: function (currentRating, $el) {
+        movies[movieRow][columns['Basak Rating']] = '' + currentRating;
+        reSort();
+        modal.toggleClass('is-active');
+        $('html').toggleClass('is-clipped');
+
+        gapi.client.sheets.spreadsheets.values.update({
+          spreadsheetId: '1Mc1uBsKIMJP9ouEgEMPhZ3Asr2j9_BORXCorvRMSAGk',
+          range: `Ratings!J${sheetRows[movie[columns['ID']]]}`,
+          valueInputOption: 'USER_ENTERED',
+          resource: {
+            values: [
+              ["" + currentRating]
+            ]
+          }
+        }).then((response) => {
+          var result = response.result;
+          console.log(`${result.updatedCells} cells updated.`);
+        });
+      }
+    })
+  }
 
   modal.toggleClass('is-active');
   $('html').toggleClass('is-clipped');
