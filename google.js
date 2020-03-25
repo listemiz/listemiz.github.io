@@ -42,7 +42,7 @@ function updateSigninStatus(isSignedIn) {
     img = currentUser.getGivenName() == 'Doga' ? 'doga.jpeg' : 'basak.jpeg';
     googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'
     if (welcomeText != null) {
-      welcomeText.innerHTML = 'Hi ' + currentUser.getGivenName() + '! <p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>';
+      welcomeText.innerHTML = 'Hi ' + (currentUser.getGivenName() == 'Doga' ? 'Doga' : 'Basak') + '! <p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>';
     }
   } else {
     googleButton.innerHTML = '<i class="fab fa-google"></i>';
