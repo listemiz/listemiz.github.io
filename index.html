@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Our Lists</title>
+  <title>Listemiz</title>
 
   <link rel='icon' href='favicon.ico' type='image/x-icon'>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
@@ -13,7 +13,6 @@
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-  <script src="script.js"></script>
 </head>
 
 <body class="has-navbar-fixed-top">
@@ -41,7 +40,6 @@
       <div class="navbar-end">
         <div class="navbar-item">
           <a class="button is-white" id="google">
-            <!-- <i class="fab fa-google"></i> -->
           </a>
         </div>
       </div>
@@ -54,7 +52,83 @@
         <p class="title" id="welcome"></p>
       </div>
     </div>
+    <div class="hero-foot">
+      <div class="container has-text-centered">
+        <a class="heading is-size-6" onclick="openModal();">Burada neler oluyor?</a>
+      </div>
+    </div>
   </section>
+
+  <div aria-hidden="" class="modal" id="my-modal">
+    <div class="modal-background close-modal" data-modal-id="#my-modal"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title" id='title'>5. Yilimiz Kutlu Olsun!</p>
+        <button class="delete close-modal" aria-label="close" data-modal-id="#my-modal"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="content">
+          <p>Selam sevgilim! Bu ozel gunde ikimizin de isine yarayacak, onumuzdeki nice bes yillarimizda beraber
+            kullanabilecegimiz bir sey yapmaya calistim.</p>
+
+          <p>Ama bu sitenin ne oldugundan bahsetmeden once, sana birkac tesekkur. Kisaca bu bes yili hayatimin en guzel
+            bes yili yaptigin icin, beni hep mutuluk ve sicak duygularla doldurdugun icin, en yakin arkadasim olmaya
+            devam ettigin icin sana tesekkur ediyorum.</p>
+
+          <ul>
+            <li> Beni mutsuz edecek olaylarda hep mutuzlugumun onune gecebildigin icin, beni mutlu edecek olaylarda
+              benden bile cok sevindigin icin,
+            <li> En en buyuk destekcim oldugun, hep bana bu kadar inancli oldugun icin,
+            <li> Benimle garip ruyalarini, tatli mi tatli guluslerini paylastigin icin, sherlock-vari cikarimlarinla
+              beni sasirttigin icin,
+            <li> Surekli bir sekilde benimle oldugun, fiziksel olarak yalniz olsam bile yalniz hissetmemi engelledigin
+              icin,
+            <li> Normalde sikilacagim seyleri (giysi alisverisi, kotu filmler, vbvb) bile yanimda olarak cok eglendigim
+              deneyimlere cevirebildigin icin,
+            <li> Normalde ilginc ve guzel bulacagim seyleri (muzeler, oyunlar, guzel filmler, felsefi tartismalar, vbvb)
+              hep daha da ilginc ve guzel yaptigin icin,
+            <li> Beni surekli guldurdugun icin,
+            <li> Baskalariyla paylasamadiklarimi senle paylasmama izin verdigin icin ve bu kadar anlayisli oldugun icin,
+            <li> Bana birbirinden dusunceli hediyeler verdigin ve bu kadar romantik oldugun icin, sonsuz yetenekli
+              ellerini ve akilli beynini beni mutlu etmek amaciyla kullandigin icin
+          </ul>
+
+          <p>sana cok cok tesekkur ediyorum ve <b>seni cok cok seviyorum</b>. "Icin" kelimesi daha cok anlamini kaybetmeden, bu
+            sitede neler oluyor aciklamaya geciyorum.</p>
+
+          <p>Bir suredir dizi ve film hobini duzenleyebilecegin, takip edebilecegin bir yer olmasini istiyorsun gibi
+            hissediyorum. Hem eski izlediklerini gorebildigin, hem izlemek istediklerini tutabildigin bir yer olsa isine
+            yarar diye umuyorum. Iste tam da boyle bir yer hazirlamaya calistim senin icin, ustune bir de iki kisilik
+            ozellikler ekledim.</p>
+
+          <p>Oncelikle Google hesabinla siteye giris yapiyorsun. Sonra sitemiz Movies ve TV Shows diye ikiye ayriliyor,
+            ama iki bolumun de calisma sekli ayni.</p>
+
+          <p>Find sekmesindeki arama kutucugu kullanarak istedigin butun dizi ve filmleri bulabilirsin. Bir tanesini
+            sectiginde onu izlemek istediklerin listesine ekleyebilirsin, veya zaten izlediysen 5 yildiz uzerinden bir
+            puan verip izlediklerin listesine gitmesini saglayabilirsin.</p>
+
+          <p>Rate sekmesine geldiginde, daha once izledigin filmleri ve dizileri, ve verdigin puanlari bulabilirsin. Ama
+            sadece seninkileri degil, benimkileri de! Filtre ve siralama kutucuklarini kullanarak sadece senin puan
+            verdigin filmleri gorebilir, veya ikimizin de puan verdigi filmleri listeleyebilirsin. Filmleri cikis
+            tarihine gore veya ikimizin verdigi puanlara gore siralayabilir, film zevklerimizi karsilastirabilirsin!</p>
+
+          <p>List sekmesine geldiginde de benzer bir durum. Izlemek istediklerine ekledigin butun filmleri ve dizileri
+            burada bulabilirsin, ama benim eklediklerim de orada olacak. Boylece ikimizin de izlemek istedigi filmleri
+            ve dizileri kolayca gorup izleyecegimiz seyleri secebiliriz, ama hala filtre kismini kullanip kendi kisisel
+            listen gibi de kullanabilirsin. Her seyi cikis tarihine gore veya popularitesine gore siralayabilirsin.
+            Buradakilerden birini sonunda izlediginde o sayfadan bir puan verip izlediklerine katilmasini
+            saglayabilirsin.</p>
+
+          <p>Site su an bir UX faciasi olabilir ama fonksiyonlarin cogu calisiyor gibi. Eger begenirsen ve kullanmaya
+            karar verirsen ikimiz de kullandikca ve zamanimiz oldukca giderek gelistiririz, yeni ozellikler ekleriz,
+            guzellestiririz. Sadece ikimize ozel, guzel bir platformumuz olur.</p>
+
+          <p>Listemiz’e hosgeldin!</p>
+        </div>
+      </section>
+    </div>
+  </div>
 
   <script src="google.js"></script>
   <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()"

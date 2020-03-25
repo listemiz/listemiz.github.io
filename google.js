@@ -29,6 +29,8 @@ function initClient() {
     // Handle the initial sign-in state.  
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
     googleButton.onclick = handleGoogle;
+    $('.open-modal').click(toggleModalClasses);
+    $('.close-modal').click(toggleModalClasses);
   }, function (error) {
     console.log(JSON.stringify(error, null, 2));
   });
@@ -38,7 +40,7 @@ function updateSigninStatus(isSignedIn) {
   if (isSignedIn) {
     currentUser = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
     img = currentUser.getGivenName() == 'Doga' ? 'doga.jpeg' : 'basak.jpeg';
-    googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'        
+    googleButton.innerHTML = '<img style="border-radius: 50%" src="' + img + '"/>'
     if (welcomeText != null) {
       welcomeText.innerHTML = 'Hi ' + currentUser.getGivenName() + '! <p class="subtitle"><a href="./movies">Movies</a> or <a href="tv">TV Shows</a>?</p>';
     }
@@ -56,4 +58,17 @@ function handleGoogle() {
   } else {
     gapi.auth2.getAuthInstance().signIn();
   }
+}
+
+function toggleModalClasses(event) {
+  var modalId = event.currentTarget.dataset.modalId;
+  var modal = $(modalId);
+  modal.toggleClass('is-active');
+  $('html').toggleClass('is-clipped');
+}
+
+function openModal() {
+  var modal = $('#my-modal');
+  modal.toggleClass('is-active');
+  $('html').toggleClass('is-clipped');
 }
