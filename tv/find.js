@@ -197,7 +197,7 @@ function formatMovie(movie) {
   if (movie.poster_path != null) {
     poster = imageBase + posterSizes[0] + movie.poster_path;
   } else {
-    poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
+    poster = '../unavailable92.png';
   }
 
   if (movie.overview != null) {

@@ -142,19 +142,13 @@ function showMovies(filter = 'Basak or Doga') {
     row = movies[i];
 
     if (filter == 'Basak or Doga' || (filter == 'Basak' && row[columns['Basak Wants']] == 'TRUE') || (filter == 'Doga' && row[columns['Doga Wants']] == 'TRUE') || (filter == 'Basak and Doga' && row[columns['Basak Wants']] == 'TRUE' && row[columns['Doga Wants']] == 'TRUE')) {
-      if (row[columns['Poster Path']] != "") {
-        poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
-      } else {
-        poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
-      }
-
       column = document.createElement('div');
       column.id = row[columns['ID']];
       column.classList.add('column', 'is-one-third-mobile', 'is-one-quarter-tablet', 'is-one-fifth-desktop', 'is-2-widescreen');
       column.innerHTML = `<div class="card">
                             <div class="card-image">
                               <figure class="image is-2by3">
-                                <a onclick="createModal(${i})"><img src="${poster}"></a>
+                                <a onclick="createModal(${i})"><img id="poster${column.id}" src=""></a>
                               </figure>
                             </div>
                             <div class="card-content">      
@@ -164,6 +158,18 @@ function showMovies(filter = 'Basak or Doga') {
                             </div>
                           </div>`;
       cardHolder.appendChild(column);
+
+      $.ajax({
+        type: "GET",
+        url: tmdbBase + `movie/${column.id}?api_key=${tmdbKey}`,
+        success: function (result) {
+          if (result.poster_path === null) {
+            document.getElementById(`poster${result.id}`).src = "../../unavailable342.png";
+          } else {
+            document.getElementById(`poster${result.id}`).src = imageBase + posterSizes[3] + result.poster_path;
+          }
+        }
+      });
     }
   }
 

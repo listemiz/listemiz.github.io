@@ -79,7 +79,7 @@ function showRatelist() {
     movies = moviesInit.slice(1);
 
     for (i = 0; i < movies.length; i++) {
-      sheetRows[movies[i][columns['ID']]] = i+2
+      sheetRows[movies[i][columns['ID']]] = i + 2
     }
 
     $(document).ready(function () {
@@ -126,11 +126,11 @@ function showMovies(filter = 'Basak or Doga') {
         'Basak': row[columns['Basak Rating']]
       }
 
-      if (row[columns['Poster Path']] != "") {
-        poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
-      } else {
-        poster = 'https://spidermanfull.com/wp-content/plugins/fakevideo/includes/templates_files/no-photo.jpg';
-      }
+      // if (row[columns['Poster Path']] != "") {
+      //   poster = imageBase + posterSizes[3] + row[columns['Poster Path']];
+      // } else {
+      //   poster = '../../unavailable342.png';
+      // }
 
       column = document.createElement('div');
       column.id = row[columns['ID']];
@@ -138,7 +138,7 @@ function showMovies(filter = 'Basak or Doga') {
       column.innerHTML = `<div class="card">
                             <div class="card-image">
                               <figure class="image is-2by3">
-                                <a onclick="createModal(${i})"><img src="${poster}"></a>
+                                <a onclick="createModal(${i})"><img id="poster${column.id}" src=""></a>
                               </figure>
                             </div>
                             <div class="card-content">      
@@ -167,6 +167,18 @@ function showMovies(filter = 'Basak or Doga') {
                             </div>
                           </div>`;
       cardHolder.appendChild(column);
+
+      $.ajax({
+        type: "GET",
+        url: tmdbBase + `movie/${column.id}?api_key=${tmdbKey}`,
+        success: function (result) {
+          if (result.poster_path === null) {
+            document.getElementById(`poster${result.id}`).src = "../../unavailable342.png";
+          } else {
+            document.getElementById(`poster${result.id}`).src = imageBase + posterSizes[3] + result.poster_path;
+          }
+        }
+      });
     }
   }
 }
